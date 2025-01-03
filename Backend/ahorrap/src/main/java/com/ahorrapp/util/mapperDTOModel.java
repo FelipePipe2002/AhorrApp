@@ -1,0 +1,31 @@
+package com.ahorrapp.util;
+
+import com.ahorrapp.dto.TransactionResponseDTO;
+import com.ahorrapp.dto.UserResponseDTO;
+import com.ahorrapp.model.Transaction;
+import com.ahorrapp.model.User;
+
+public class mapperDTOModel {
+
+    public static UserResponseDTO mapToResponseDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setLastname(user.getLastname());
+        dto.setEmail(user.getEmail());
+        return dto;
+    }
+
+    public static TransactionResponseDTO mapToResponseDTO(Transaction transaction) {
+        TransactionResponseDTO dto = new TransactionResponseDTO();
+        dto.setId(transaction.getId());
+        dto.setType(transaction.getType());
+        dto.setCategory(transaction.getCategory());
+        dto.setAmount(transaction.getAmount());
+        dto.setDescription(transaction.getDescription());
+        dto.setDate(transaction.getDate());
+        dto.setUserId(transaction.getUser().getId());
+        return dto;
+    }
+
+}

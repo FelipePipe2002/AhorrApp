@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-AhorrapApplication<ahorrap>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.ahorrapp.ahorrap.AhorrapApplication",
+            "projectName": "ahorrap",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AhorrapApplication<ahorrap>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.ahorrapp.AhorrapApplication",
+            "projectName": "ahorrap",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
