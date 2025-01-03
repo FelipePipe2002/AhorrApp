@@ -5,7 +5,6 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Obtener todos los usuarios
 export const getUsers = async () => {
   try {
     const response = await api.get('/users');
@@ -15,7 +14,6 @@ export const getUsers = async () => {
   }
 };
 
-// Obtener todas las transacciones
 export const getTransactions = async () => {
   try {
     const response = await api.get('/transactions');
