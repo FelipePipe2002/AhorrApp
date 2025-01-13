@@ -11,3 +11,4 @@ export async function getAuthToken(): Promise<string | null> {
 export async function deleteAuthToken() {
   await AsyncStorage.removeItem('authToken');
 }
+

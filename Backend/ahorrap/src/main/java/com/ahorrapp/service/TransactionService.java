@@ -1,6 +1,6 @@
 package com.ahorrapp.service;
 
-import com.ahorrapp.dto.TransactionRequestDTO;
+import com.ahorrapp.dto.TransactionDTO;
 import com.ahorrapp.model.Transaction;
 import com.ahorrapp.model.User;
 import com.ahorrapp.repository.TransactionRepository;
@@ -34,10 +34,10 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByUserId(Long userId) {
-        return transactionRepository.findByUserId(userId);
+        return transactionRepository.findByUserIdOrderByDateDesc(userId);
     }
 
-    public ResponseEntity<Map<String,Object>> deleteTransaction(Long id, User user) {
+    public ResponseEntity<Map<String, Object>> deleteTransaction(Long id, User user) {
         Optional<Transaction> transactionOptional = transactionRepository.findById(id);
         if (transactionOptional.isPresent()) {
             Transaction transaction = transactionOptional.get();
@@ -52,7 +52,7 @@ public class TransactionService {
         }
     }
 
-    public Transaction createTransaction(TransactionRequestDTO transactionRequest, User user) {
+    public Transaction createTransaction(TransactionDTO transactionRequest, User user) {
         Transaction transaction = new Transaction();
         transaction.setType(transactionRequest.getType());
         transaction.setCategory(transactionRequest.getCategory());

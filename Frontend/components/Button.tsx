@@ -1,10 +1,11 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import GlobalText from './GlobalText';
 
 const Button: React.FC<{ onPress: () => void; title: string }> = ({ onPress, title }) => {
   return (
     <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Text style={styles.buttonText}>{title}</Text>
+      <GlobalText style={styles.buttonText}>{title}</GlobalText>
     </TouchableOpacity>
   );
 };

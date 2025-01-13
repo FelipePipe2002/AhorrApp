@@ -1,7 +1,6 @@
 package com.ahorrapp.controller;
 
-import com.ahorrapp.dto.TransactionRequestDTO;
-import com.ahorrapp.dto.TransactionResponseDTO;
+import com.ahorrapp.dto.TransactionDTO;
 import com.ahorrapp.model.User;
 import com.ahorrapp.service.TransactionService;
 import com.ahorrapp.service.UserService;
@@ -30,12 +29,12 @@ public class TransactionController {
 
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addTransaction(
-            @Valid @RequestBody TransactionRequestDTO transactionRequest) {
+            @Valid @RequestBody TransactionDTO transactionRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
         User user = userService.getUserByEmail(userEmail);
-        TransactionResponseDTO transaction = mapperDTOModel.mapToResponseDTO(transactionService.createTransaction(transactionRequest, user));
+        TransactionDTO transaction = mapperDTOModel.mapToResponseDTO(transactionService.createTransaction(transactionRequest, user));
         return ResponseEntity.ok(Map.of("message", "Transaction created successfully", "transaction", transaction));
     }
 
@@ -43,7 +42,6 @@ public class TransactionController {
     public ResponseEntity<Map<String, Object>> deleteTransaction(@RequestParam Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
-
         User user = userService.getUserByEmail(userEmail);
         transactionService.deleteTransaction(id, user);
         return ResponseEntity.ok(Map.of("message", "Transaction deleted successfully"));
@@ -55,9 +53,10 @@ public class TransactionController {
         String userEmail = authentication.getName();
 
         User user = userService.getUserByEmail(userEmail);
-        List<TransactionResponseDTO> transactions = transactionService.getTransactionsByUserId(user.getId()).stream()
+        List<TransactionDTO> transactions = transactionService.getTransactionsByUserId(user.getId()).stream()
                 .map(mapperDTOModel::mapToResponseDTO)
                 .toList();
         return ResponseEntity.ok(Map.of("transactions", transactions));
     }
+
 }

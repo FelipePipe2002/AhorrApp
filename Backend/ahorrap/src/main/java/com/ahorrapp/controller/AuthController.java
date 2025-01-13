@@ -2,6 +2,7 @@ package com.ahorrapp.controller;
 
 import com.ahorrapp.dto.UserLoginDTO;
 import com.ahorrapp.dto.UserRequestDTO;
+import com.ahorrapp.dto.UserResponseDTO;
 import com.ahorrapp.model.User;
 import com.ahorrapp.service.UserService;
 import com.ahorrapp.util.JwtUtil;
@@ -27,13 +28,20 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody UserLoginDTO userLoginDTO) {
         User user = userService.getUserByEmail(userLoginDTO.getEmail());
         if (user != null && userService.verifyPassword(userLoginDTO.getPassword(), user.getPassword())) {
             String token = jwtUtil.generateToken(user.getEmail());
-            return ResponseEntity.ok(token);
+            UserResponseDTO userResponse = mapperDTOModel.mapToResponseDTO(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", userResponse);
+            response.put("token", token);
+
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(401).body("Invalid email or password");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid email or password");
+            return ResponseEntity.status(401).body(errorResponse);
         }
     }
 
@@ -51,6 +59,18 @@ public class AuthController {
         response.put("token", token);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/verifyToken")
+    public ResponseEntity<String> verifyToken(@RequestHeader("Authorization") String token) {
+        System.out.println(token);
+        token = token.substring(7); // Remove "Bearer " from token
+        if (jwtUtil.validateToken(token)) {
+            return ResponseEntity.ok("Token is valid");
+        } else {
+            return ResponseEntity.status(401).body("Token is invalid");
+        }
+        
     }
 
 

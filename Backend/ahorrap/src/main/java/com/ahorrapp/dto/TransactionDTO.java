@@ -6,7 +6,9 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
-public class TransactionRequestDTO {
+public class TransactionDTO {
+
+    private Long id;
 
     @NotNull(message = "El tipo de transacción es obligatorio.")
     private TransactionType type;
@@ -21,7 +23,6 @@ public class TransactionRequestDTO {
     private String description;
 
     @NotBlank(message = "La fecha es obligatoria.")
-    @Pattern(regexp = "\\d{2}-\\d{2}-\\d{4}", message = "La fecha debe estar en formato DD-MM-YYY.")
     private String date;
 
     @NotNull(message = "El ID del usuario es obligatorio.")

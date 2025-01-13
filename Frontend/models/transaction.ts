@@ -7,4 +7,3 @@ export interface Transaction {
     description: string;
     userId: number;
   }
-  

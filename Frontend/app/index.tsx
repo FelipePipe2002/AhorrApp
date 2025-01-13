@@ -1,26 +1,62 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ActivityIndicator, StatusBar, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { getAuthToken } from '@/services/tokenStorage';
+import Footer from '@/components/Footer'; 
+import Header from '@/components/Header';
+import authService from '@/services/authService';
+import Transactions from './transactions';
+import Statistics from './statistics';
+import GlobalText from '@/components/GlobalText';
+
 
 export default function Home() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [selectedScreen, setSelectedScreen] = useState<'transactions' | 'statistics'>('transactions');
+  //TODO: taking into account that transactions and statistics both use the transaction, make it that index is the one that fetches the transactions and then passes them to the children components
 
+  
   useEffect(() => {
     const checkToken = async () => {
-      const token = await getAuthToken();
-      if (token) {
-        router.push('/transactions');
+      const valid = await authService.verifyToken();
+      if (valid) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        router.replace('/login');
       }
     };
 
     checkToken();
   }, []);
 
+  if (isAuthenticated === null) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0077cc" />
+        <GlobalText style={styles.text}>Loading...</GlobalText>
+      </View>
+    );
+  }
+
+  const handleLogout = async () => {
+    await authService.logout();
+    router.replace('/login');
+  };
+
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Welcome to AhorrApp!</Text>
-      <Button title="Go to Login" onPress={() => router.push('/login')} />
+      <Header title={selectedScreen === 'transactions' ? 'Transactions' : 'Statistics'} showLogout={true} onLogout={handleLogout} />
+      <StatusBar
+      backgroundColor="#22222c"
+      barStyle={Platform.OS === 'ios' ? 'light-content' : 'default'}
+      translucent
+      />
+      <View style={styles.content}>
+      {selectedScreen === 'transactions' ? <Transactions /> : <Statistics />}
+      </View>
+      <Footer onSelect={setSelectedScreen} selectedScreen={selectedScreen} />
     </View>
   );
 }
@@ -28,12 +64,19 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#242b3e',
+  },
+  content: {
+    flex: 1,
+    marginBottom: 60,
+  },
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
   },
   text: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#000',
   },
 });

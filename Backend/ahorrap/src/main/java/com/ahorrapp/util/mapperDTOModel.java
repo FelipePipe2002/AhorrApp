@@ -1,6 +1,6 @@
 package com.ahorrapp.util;
 
-import com.ahorrapp.dto.TransactionResponseDTO;
+import com.ahorrapp.dto.TransactionDTO;
 import com.ahorrapp.dto.UserResponseDTO;
 import com.ahorrapp.model.Transaction;
 import com.ahorrapp.model.User;
@@ -16,8 +16,8 @@ public class mapperDTOModel {
         return dto;
     }
 
-    public static TransactionResponseDTO mapToResponseDTO(Transaction transaction) {
-        TransactionResponseDTO dto = new TransactionResponseDTO();
+    public static TransactionDTO mapToResponseDTO(Transaction transaction) {
+        TransactionDTO dto = new TransactionDTO();
         dto.setId(transaction.getId());
         dto.setType(transaction.getType());
         dto.setCategory(transaction.getCategory());
