@@ -15,7 +15,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.felipepipe.ahorrapp",
+      "permissions": [
+        "INTERNET"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +41,27 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "aa98a006-9cbc-4925-9cec-bd022b4c4358"
+      }
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/aa98a006-9cbc-4925-9cec-bd022b4c4358"
+    },
+    "runtimeVersion": "1.0.0"
+  },
+  "android": {
+    "config": {
+      "intentFilters": [],
+      "networkSecurityConfig": "./network_security_config.xml"
     }
   }
 }

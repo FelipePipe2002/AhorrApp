@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, StatusBar, Platform } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, StatusBar, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import Footer from '@/components/Footer'; 
 import Header from '@/components/Header';
@@ -7,7 +7,7 @@ import authService from '@/services/authService';
 import Transactions from './transactions';
 import Statistics from './statistics';
 import GlobalText from '@/components/GlobalText';
-
+import * as Updates from 'expo-updates';
 
 export default function Home() {
   const router = useRouter();
@@ -28,6 +28,23 @@ export default function Home() {
     };
 
     checkToken();
+  }, []);
+
+  const checkForUpdates = async () => {
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      if (update.isAvailable) {
+        await Updates.fetchUpdateAsync();
+        Alert.alert('Update available!', 'Restarting app to apply the update.');
+        Updates.reloadAsync(); // restarts the app to load the new version
+      }
+    } catch (e) {
+      console.log('Error checking for updates:', e);
+    }
+  };
+  
+  useEffect(() => {
+    checkForUpdates();
   }, []);
 
   if (isAuthenticated === null) {

@@ -3,13 +3,14 @@ import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import authService from '@/services/authService';
 import GlobalText from '@/components/GlobalText';
+import { NetworkInfo } from 'react-native-network-info';
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
+  const [ipAddress, setIpAddress] = useState('');
   const handleLogin = async () => {
     try {
       await authService.login(email, password);
@@ -19,6 +20,19 @@ export default function Login() {
     }
   };
 
+  
+
+  const getLocalIpAddress = async () => {
+    NetworkInfo.getIPV4Address().then(ipAddress => {
+      if (ipAddress) {
+        setIpAddress(ipAddress);
+      }
+    });
+  };
+
+  getLocalIpAddress();
+
+
   return (
     <View style={styles.container}>
       <GlobalText style={styles.title}>Login</GlobalText>
@@ -26,6 +40,8 @@ export default function Login() {
       <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
       <Button title="Login" onPress={handleLogin} />
       <GlobalText>{'Don\'t have an account? '}<Text style={{ color: 'blue' }} onPress={() => router.push('/register')}>Register</Text></GlobalText>
+      <GlobalText>Hellooooo</GlobalText>
+      <GlobalText>{ipAddress}</GlobalText>
     {error ? <GlobalText style={styles.error}>{error}</GlobalText> : null}
     </View>
   );
