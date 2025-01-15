@@ -36,12 +36,19 @@ export default function Home() {
       if (update.isAvailable) {
         await Updates.fetchUpdateAsync();
         Alert.alert('Update available!', 'Restarting app to apply the update.');
-        Updates.reloadAsync(); // restarts the app to load the new version
+        Updates.reloadAsync();
+      } else {
+        console.log('No update available.');
       }
     } catch (e) {
-      console.log('Error checking for updates:', e);
+      if (e instanceof Error) {
+        Alert.alert('Error', `Error checking for updates: ${e.message}`);
+      } else {
+        Alert.alert('Error', 'An unknown error occurred.');
+      }
     }
   };
+  
   
   useEffect(() => {
     checkForUpdates();

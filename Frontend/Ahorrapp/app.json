@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,8 +22,8 @@
       "permissions": [
         "INTERNET"
       ],
-      "usesCleartextTraffic": true,
-      "package": "com.felipepipe.Ahorrapp"
+      "package": "com.felipepipe.Ahorrapp",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "bundler": "metro",
@@ -49,6 +52,12 @@
       "eas": {
         "projectId": "b2672823-f0db-45e5-a43e-a95510a7aebf"
       }
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/b2672823-f0db-45e5-a43e-a95510a7aebf"
     }
   }
 }
