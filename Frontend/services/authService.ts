@@ -52,6 +52,10 @@ const authService = {
     const userInfo = await AsyncStorage.getItem(USER_STORAGE_KEY);
     return userInfo ? JSON.parse(userInfo) : null;
   },
+
+  getHello: async () => {
+    return api.get('/auth/hello');
+  }  
 };
 
 export default authService;

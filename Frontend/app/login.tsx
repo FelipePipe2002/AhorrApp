@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import authService from '@/services/authService';
@@ -11,6 +11,13 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [ipAddress, setIpAddress] = useState('');
+
+  const [hello, setHello] = useState('');
+
+  useEffect(() => {
+    getHello();
+  }, []);
+
   const handleLogin = async () => {
     try {
       await authService.login(email, password);
@@ -19,6 +26,16 @@ export default function Login() {
       setError('Invalid email or password');
     }
   };
+  
+  const getHello = async () => {
+    try {
+      const response = await authService.getHello();
+      setHello(response.data);
+    } catch (error) {
+      console.log('Error getting hello:', error);
+      setHello((error as any).message);
+    }
+  }
 
   
 
@@ -40,7 +57,7 @@ export default function Login() {
       <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
       <Button title="Login" onPress={handleLogin} />
       <GlobalText>{'Don\'t have an account? '}<Text style={{ color: 'blue' }} onPress={() => router.push('/register')}>Register</Text></GlobalText>
-      <GlobalText>Hellooooo</GlobalText>
+      <GlobalText>hello: {hello}</GlobalText>
       <GlobalText>{ipAddress}</GlobalText>
     {error ? <GlobalText style={styles.error}>{error}</GlobalText> : null}
     </View>

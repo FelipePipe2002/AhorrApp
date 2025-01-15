@@ -19,6 +19,14 @@
       "package": "com.felipepipe.ahorrapp",
       "permissions": [
         "INTERNET"
+      ],
+      "usesCleartextTraffic": true,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [{ "scheme": "myapp", "host": "*" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
       ]
     },
     "web": {
@@ -54,14 +62,9 @@
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
       "fallbackToCacheTimeout": 0,
+      "allowInsecureHttp": true,
       "url": "https://u.expo.dev/aa98a006-9cbc-4925-9cec-bd022b4c4358"
     },
     "runtimeVersion": "1.0.0"
-  },
-  "android": {
-    "config": {
-      "intentFilters": [],
-      "networkSecurityConfig": "./network_security_config.xml"
-    }
   }
 }
