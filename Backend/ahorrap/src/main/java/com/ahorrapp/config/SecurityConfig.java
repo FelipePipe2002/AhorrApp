@@ -41,7 +41,7 @@ public class SecurityConfig {
                         CorsConfiguration config = new CorsConfiguration();
                         config.setAllowedOrigins(Arrays.asList("*"));
                         config.setAllowedMethods(Collections.singletonList("*"));
-                        config.setAllowCredentials(true);
+                        config.setAllowCredentials(false);
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setExposedHeaders(List.of("Authorization", "X-XSRF-TOKEN"));
                         config.setMaxAge(3600L);

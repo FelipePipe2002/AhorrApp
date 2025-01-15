@@ -3,7 +3,6 @@ import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import authService from '@/services/authService';
 import GlobalText from '@/components/GlobalText';
-import { NetworkInfo } from 'react-native-network-info';
 
 export default function Login() {
   const router = useRouter();
@@ -36,19 +35,6 @@ export default function Login() {
       setHello((error as any).message);
     }
   }
-
-  
-
-  const getLocalIpAddress = async () => {
-    NetworkInfo.getIPV4Address().then(ipAddress => {
-      if (ipAddress) {
-        setIpAddress(ipAddress);
-      }
-    });
-  };
-
-  getLocalIpAddress();
-
 
   return (
     <View style={styles.container}>

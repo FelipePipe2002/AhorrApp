@@ -7,9 +7,13 @@ const PUBLIC_IP = 'http://186.137.88.141:8080/api';
 
 const isLocalNetwork = Platform.OS === 'android' && LOCAL_IP.startsWith('192.168');
 
+
 const api = axios.create({
-  baseURL: isLocalNetwork ? LOCAL_IP : PUBLIC_IP,
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: "http://192.168.0.202:8080/api",
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
 });
 
 api.interceptors.request.use(
@@ -24,12 +28,15 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response:', response);
+    return response;
+  },
   (error) => {
-    console.error('API Error:', error.toJSON());
-
-    alert(`API Error: ${error}`);
-
+    console.error('API Error:', error.message);
+    if (error.response) {
+      console.log('Error Response Data:', error.response.data);
+    }
     return Promise.reject(error);
   }
 );
