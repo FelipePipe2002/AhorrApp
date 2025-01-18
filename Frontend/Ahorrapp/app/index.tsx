@@ -8,23 +8,17 @@ import Transactions from './transactions';
 import Statistics from './statistics';
 import GlobalText from '@/components/GlobalText';
 import * as Updates from 'expo-updates';
+import Login from './login';
 
 export default function Home() {
-  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [selectedScreen, setSelectedScreen] = useState<'transactions' | 'statistics'>('transactions');
   //TODO: taking into account that transactions and statistics both use the transaction, make it that index is the one that fetches the transactions and then passes them to the children components
-
   
   useEffect(() => {
     const checkToken = async () => {
       const valid = await authService.verifyToken();
-      if (valid) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-        router.replace('/login');
-      }
+      setIsAuthenticated(valid);
     };
 
     checkToken();
@@ -37,8 +31,6 @@ export default function Home() {
         await Updates.fetchUpdateAsync();
         Alert.alert('Update available!', 'Restarting app to apply the update.');
         Updates.reloadAsync();
-      } else {
-        console.log('No update available.');
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -48,24 +40,20 @@ export default function Home() {
       }
     }
   };
-  
-  
+
   useEffect(() => {
     checkForUpdates();
+    const interval = setInterval(checkForUpdates, 10000); // 10 seconds
+    return () => clearInterval(interval);
   }, []);
 
-  if (isAuthenticated === null) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0077cc" />
-        <GlobalText style={styles.text}>Loading...</GlobalText>
-      </View>
-    );
+  if (!isAuthenticated) {
+    return <Login />;
   }
 
   const handleLogout = async () => {
     await authService.logout();
-    router.replace('/login');
+    setIsAuthenticated(false);
   };
 
 

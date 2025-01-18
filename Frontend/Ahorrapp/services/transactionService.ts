@@ -1,18 +1,21 @@
 import { Transaction } from '@/models/transaction';
-import api from './api';
+import createApiInstance from './api';
 
 const transactionService = {
     getTransactionsByUser: async () => {
+        const api = await createApiInstance();
         const response = await api.get('/transactions/mine');
         return response.data;
     },
 
     addTransaction: async (transaction: Transaction) => {
+        const api = await createApiInstance();
         const response = await api.post('/transactions/add', transaction);
         return response.data;
     },
 
     deleteTransaction: async (id: number) => {
+        const api = await createApiInstance();
         const response = await api.delete(`/transactions/delete`, { params: { id } });
         return response.data;
     }

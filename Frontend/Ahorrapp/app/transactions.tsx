@@ -16,6 +16,7 @@ export default function Transactions() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 4;
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
@@ -43,8 +44,10 @@ export default function Transactions() {
       }
     };
 
+    setLoading(true);
     checkToken();
     fetchTransactions();
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -124,6 +127,13 @@ export default function Transactions() {
     setType('INCOME');
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <GlobalText>Loading...</GlobalText>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <View style={styles.summaryCard}>
@@ -279,6 +289,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   paginationButtons: {
     flexDirection: 'row',

@@ -20,7 +20,9 @@
         "backgroundColor": "#ffffff"
       },
       "permissions": [
-        "INTERNET"
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE"
       ],
       "package": "com.felipepipe.Ahorrapp",
       "runtimeVersion": "1.0.0"

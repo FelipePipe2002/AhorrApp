@@ -1,11 +1,12 @@
-import api from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { deleteAuthToken, getAuthToken, saveAuthToken } from './tokenStorage';
+import createApiInstance from './api';
 
 const USER_STORAGE_KEY = 'authUserInfo';
 
 const authService = {
   login: async (email: string, password: string) => {
+    const api = await createApiInstance();
     const response = await api.post('/auth/login', { email, password });
 
     const { token, user } = response.data;
@@ -22,6 +23,7 @@ const authService = {
   },
 
   register: async (data: { name: string; lastname: string; email: string; password: string }) => {
+    const api = await createApiInstance();
     const response = await api.post('/auth/register', data);
 
     const { token, user } = response.data;
@@ -40,6 +42,7 @@ const authService = {
     }
 
     try {
+      const api = await createApiInstance();
       await api.get('/auth/verifyToken');
       return true;
     } catch (error) {
@@ -54,6 +57,7 @@ const authService = {
   },
 
   getHello: async () => {
+    const api = await createApiInstance();
     return api.get('/auth/hello');
   }  
 };
