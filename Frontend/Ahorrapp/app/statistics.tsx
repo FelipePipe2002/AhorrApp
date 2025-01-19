@@ -1,25 +1,15 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import authService from '@/services/authService';
-import { useRouter } from 'expo-router';
-import { deleteAuthToken } from '@/services/tokenStorage';
+import { View, StyleSheet } from 'react-native';
 import GlobalText from '@/components/GlobalText';
+import { User } from '@/models/user';
+import { Transaction } from '@/models/transaction';
 
-export default function Statistics() {
-  const router = useRouter();
+type TransactionsProps = {
+  transactions: Transaction[];
+  user: User;
+};
 
-  useEffect(() => {
-    const checkToken = async () => {
-      let valid = await authService.verifyToken();
-      if (!valid) {
-        router.push('/');
-        deleteAuthToken();
-      }
-    };
-
-    checkToken();
-  }, []);
-
+export default function Statistics({ transactions, user }: TransactionsProps) {
   return (
     <View style={styles.container}>
     </View>

@@ -18,6 +18,12 @@ const transactionService = {
         const api = await createApiInstance();
         const response = await api.delete(`/transactions/delete`, { params: { id } });
         return response.data;
+    },
+
+    getCategories: async () => {
+        const api = await createApiInstance();
+        const response = await api.get('/transactions/categories');
+        return response.data;
     }
 };
 

@@ -1,55 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Button, Modal, TextInput } from 'react-native';
+import { View, FlatList, StyleSheet, Button, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import transactionService from '@/services/transactionService';
 import { Transaction } from '@/models/transaction';
-import authService from '@/services/authService';
-import { useRouter } from 'expo-router';
-import { deleteAuthToken } from '@/services/tokenStorage';
 import GlobalText from '@/components/GlobalText';
+import { User } from '@/models/user';
+import DynamicCategorySelector from '@/components/DynamicCategorySelector';
 
-export default function Transactions() {
-  const router = useRouter();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [username, setUsername] = useState<string | null>(null);
+type TransactionsProps = {
+  transactions: Transaction[];
+  user: User;
+};
+
+export default function Transactions({ transactions, user }: TransactionsProps) {
+  // Summary
   const [income, setIncome] = useState<number>(0);
   const [expense, setExpense] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 4;
-  const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(false);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 3;
+
+  // Transaction Add
+  const [showModal, setShowModal] = useState(false);
+
+  // Transaction Categories
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+
+  // Transaction form
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
 
-  useEffect(() => {
-    const checkToken = async () => {
-      let valid = await authService.verifyToken();
-      if (!valid) {
-        router.push('/');
-        deleteAuthToken();
-      } else {
-        const user = await authService.getUserInfo();
-        setUsername(user?.name);
-      }
-    };
-
-    const fetchTransactions = async () => {
-      try {
-        const data = await transactionService.getTransactionsByUser();
-        setTransactions(data.transactions);
-      } catch (error) {
-        console.error('Error fetching transactions:', error);
-      }
-    };
-
-    setLoading(true);
-    checkToken();
-    fetchTransactions();
-    setLoading(false);
-  }, []);
-
+  // Summary
   useEffect(() => {
     const calculateIncomeAndExpense = () => {
       let income = 0;
@@ -70,7 +54,13 @@ export default function Transactions() {
       setExpense(expense);
     };
 
+    const fetchCategories = async () => {
+      const categories = await transactionService.getCategories();
+      setCategories(categories.categories);
+    }
+
     calculateIncomeAndExpense();
+    fetchCategories();
   }, [transactions]);
 
   // Pagination
@@ -93,13 +83,18 @@ export default function Transactions() {
   const handleDeleteTransaction = async (id: number) => {
     try {
       await transactionService.deleteTransaction(id);
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      transactions = transactions.filter((t) => t.id !== id);
     } catch (error) {
       console.error('Error deleting transaction:', error);
     }
   }
 
   const handleAddTransaction = async () => {
+    if (!amount || !category) {
+      Alert.alert('Validation Error', 'Amount and category are required!');
+      return;
+    }
+
     const newTransaction: Transaction = {
       id: 0, // the backend will generate the id
       amount: parseFloat(amount),
@@ -112,12 +107,18 @@ export default function Transactions() {
 
     try {
       const data = await transactionService.addTransaction(newTransaction);
-      setTransactions((prev) => [data.transaction, ...prev]);
+      transactions = [data.transaction, ...transactions];
       setShowModal(false);
       resetForm();
     } catch (error) {
       console.error('Error adding transaction:', error);
     }
+  };
+
+  const handleCategoryChange = (value: string) => {
+    const isMatch = categories.some((cat) => cat.toLowerCase() === value.toLowerCase());
+    setIsCustomCategory(!isMatch);
+    setCategory(value);
   };
 
   const resetForm = () => {
@@ -127,56 +128,56 @@ export default function Transactions() {
     setType('INCOME');
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <GlobalText>Loading...</GlobalText>
-      </View>
-    );
-  }
   return (
     <View style={styles.container}>
       <View style={styles.summaryCard}>
-        <GlobalText style={styles.title}>Hello, {username || 'User'}!</GlobalText>
+        <GlobalText style={styles.title}>Hello, {user.name || 'User'}!</GlobalText>
         <GlobalText> Total Balance: ${(income - expense).toFixed(2)}</GlobalText>
         <GlobalText> Income: ${income}</GlobalText>
         <GlobalText> Expense: ${expense}</GlobalText>
         <Button title="Add Transaction" onPress={() => setShowModal(true)} />
       </View>
-
       <Modal visible={showModal} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <GlobalText style={styles.modalTitle}>Add New Transaction</GlobalText>
-            <TextInput
-              placeholder="Amount"
-              keyboardType="numeric"
-              value={amount}
-              onChangeText={setAmount}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Category"
-              value={category}
-              onChangeText={setCategory}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder="Description"
-              value={description}
-              onChangeText={setDescription}
-              style={styles.input}
-            />
-            <View style={styles.typeButtons}>
-              <Button title="Income" onPress={() => setType('INCOME')} color={type === 'INCOME' ? 'green' : 'gray'} />
-              <Button title="Expense" onPress={() => setType('EXPENSE')} color={type === 'EXPENSE' ? 'red' : 'gray'} />
-            </View>
-            <View style={styles.modalButtons}>
-              <Button title="Add" onPress={handleAddTransaction} />
-              <Button title="Cancel" onPress={() => setShowModal(false)} color="red" />
-            </View>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            setShowModal(false);
+            resetForm();
+            Keyboard.dismiss();
+          }}
+        >
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback onPress={() => { }}>
+              <View style={styles.modalContent}>
+                <GlobalText style={styles.modalTitle}>Add New Transaction</GlobalText>
+                <TextInput
+                  placeholder="Amount"
+                  keyboardType="numeric"
+                  value={amount}
+                  onChangeText={setAmount}
+                  style={styles.input}
+                />
+                <DynamicCategorySelector
+                  categories={categories}
+                  onCategoryChange={handleCategoryChange}
+                />
+                <TextInput
+                  placeholder="Description"
+                  value={description}
+                  onChangeText={setDescription}
+                  style={styles.input}
+                />
+                <View style={styles.typeButtons}>
+                  <Button title="Income" onPress={() => setType('INCOME')} color={type === 'INCOME' ? 'green' : 'gray'} />
+                  <Button title="Expense" onPress={() => setType('EXPENSE')} color={type === 'EXPENSE' ? 'red' : 'gray'} />
+                </View>
+                <View style={styles.modalButtons}>
+                  <Button title="Add" onPress={handleAddTransaction} />
+                  <Button title="Cancel" onPress={() => setShowModal(false)} color="red" />
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       <FlatList
@@ -268,6 +269,13 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: 18,
     color: '#007700',
+  },
+  picker: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: 'gray',
+    marginBottom: 10,
+    borderRadius: 5,
   },
   typeText: {
     fontSize: 16,

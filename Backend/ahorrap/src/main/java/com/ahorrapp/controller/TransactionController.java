@@ -59,4 +59,12 @@ public class TransactionController {
         return ResponseEntity.ok(Map.of("transactions", transactions));
     }
 
+    @GetMapping("/categories")
+    public ResponseEntity<Map<String, Object>> getCategories() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        Long userId = userService.getUserByEmail(userEmail).getId();
+        return ResponseEntity.ok(Map.of("categories", transactionService.getCategories(userId)));
+    }
+
 }

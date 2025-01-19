@@ -62,4 +62,10 @@ public class TransactionService {
         transaction.setUser(user);
         return transactionRepository.save(transaction);
     }
+
+    public List<String> getCategories(Long id) {
+        System.out.println("ID: " + id);
+        System.out.println(transactionRepository.findDistinctCategoriesByUserId(id));
+        return transactionRepository.findDistinctCategoriesByUserId(id);
+    }
 }
