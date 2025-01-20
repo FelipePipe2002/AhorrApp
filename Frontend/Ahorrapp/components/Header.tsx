@@ -1,27 +1,28 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import GlobalText from './GlobalText';
 
 interface HeaderProps {
   title: string;
   showLogout?: boolean;
-  showBackButton?: boolean;
+  showReloadButton?: boolean;
   onLogout?: () => void;
-  onBackPress?: () => void;
+  onReload?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, showLogout, showBackButton, onLogout, onBackPress }) => {
+const Header: React.FC<HeaderProps> = ({ title, showLogout, showReloadButton, onLogout, onReload }) => {
   return (
     <View style={styles.headerContainer}>
-      {/* Back Button */}
-      {showBackButton && (
-        <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-          <GlobalText style={styles.backText}>←</GlobalText>
-        </TouchableOpacity>
-      )}
-
+      
       {/* Title */}
       <GlobalText style={styles.title}>{title}</GlobalText>
+
+      {/* Reload Button */}
+      {showReloadButton && (
+        <TouchableOpacity onPress={onReload} style={styles.reloadButton}>
+          <GlobalText style={styles.reloadText}>Reload</GlobalText>
+        </TouchableOpacity>
+      )}
 
       {/* Logout Button */}
       {showLogout && (
@@ -51,13 +52,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flex: 1,
   },
-  backButton: {
+  reloadButton: {
     position: 'absolute',
     left: 10,
   },
-  backText: {
+  reloadText: {
     fontSize: 18,
-    color: 'white',
+    color: '#4caf50', // Green for reload button
   },
   logoutButton: {
     position: 'absolute',

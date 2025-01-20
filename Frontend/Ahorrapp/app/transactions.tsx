@@ -9,9 +9,11 @@ import DynamicCategorySelector from '@/components/DynamicCategorySelector';
 type TransactionsProps = {
   transactions: Transaction[];
   user: User;
+  onAddTransaction?: (transaction: Transaction) => void;
+  onDeleteTransaction?: (id: number) => void;
 };
 
-export default function Transactions({ transactions, user }: TransactionsProps) {
+export default function Transactions({ transactions, user, onAddTransaction,onDeleteTransaction}: TransactionsProps) {
   // Summary
   const [income, setIncome] = useState<number>(0);
   const [expense, setExpense] = useState<number>(0);
@@ -83,7 +85,7 @@ export default function Transactions({ transactions, user }: TransactionsProps) 
   const handleDeleteTransaction = async (id: number) => {
     try {
       await transactionService.deleteTransaction(id);
-      transactions = transactions.filter((t) => t.id !== id);
+      onDeleteTransaction?.(id);
     } catch (error) {
       console.error('Error deleting transaction:', error);
     }
@@ -107,7 +109,7 @@ export default function Transactions({ transactions, user }: TransactionsProps) 
 
     try {
       const data = await transactionService.addTransaction(newTransaction);
-      transactions = [data.transaction, ...transactions];
+      onAddTransaction?.(data.transaction);
       setShowModal(false);
       resetForm();
     } catch (error) {

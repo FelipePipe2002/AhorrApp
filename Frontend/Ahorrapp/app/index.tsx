@@ -1,55 +1,68 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator, StatusBar, Platform, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import authService from '@/services/authService';
 import Transactions from './transactions';
 import Statistics from './statistics';
-import GlobalText from '@/components/GlobalText';
 import * as Updates from 'expo-updates';
 import Login from './login';
 import { Transaction } from '@/models/transaction';
 import transactionService from '@/services/transactionService';
 import { User } from '@/models/user';
+import Loading from './loading';
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [selectedScreen, setSelectedScreen] = useState<'transactions' | 'statistics'>('transactions');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  //handles the transactions
+  const fetchTransactions = async () => {
+    setLoading(true);
+    try {
+      const data = await transactionService.getTransactionsByUser();
+      setTransactions(data.transactions);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddTransaction = async (newTransaction: Transaction) => {
+    setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
+  };
+
+  const handleDeleteTransaction = async (id: number) => {
+    setTransactions(transactions.filter((t) => t.id !== id));
+  }
+
 
   //validates token
   useEffect(() => {
-    const checkToken = async () => {
-      const valid = await authService.verifyToken();
-      setIsAuthenticated(valid);
-    };
-
-    const fetchTransactions = async () => {
+    const initialize = async () => {
+      setLoading(true);
       try {
-        const data = await transactionService.getTransactionsByUser();
-        setTransactions(data.transactions);
+        const valid = await authService.verifyToken();
+        setIsAuthenticated(valid);
+
+        if (valid) {
+          const data = await authService.getUserInfo();
+          setUser(data);
+
+          await fetchTransactions();
+        }
       } catch (error) {
-        console.error('Error fetching transactions:', error);
+        console.error('Error during initialization:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const getUser = async () => {
-      try {
-        const data = await authService.getUserInfo();
-        setUser(data);
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-
-    setLoading(true);
-    checkToken();
-    fetchTransactions();
-    getUser();
-    setLoading(false);
+    initialize();
   }, []);
 
   //checks for updates
@@ -75,35 +88,51 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0077cc" />
-        <GlobalText style={styles.text}>Loading...</GlobalText>
-      </View>
-    );
-  }
 
-  if (!isAuthenticated) {
-    return <Login />;
-  }
-
+  //header functions
   const handleLogout = async () => {
     await authService.logout();
     setIsAuthenticated(false);
   };
 
+  const handleReload = async () => {
+    setLoading(true);
+    await fetchTransactions();
+    setLoading(false);
+  };
+
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   return (
     <View style={styles.container}>
-      <Header title={selectedScreen === 'transactions' ? 'Transactions' : 'Statistics'} showLogout={true} onLogout={handleLogout} />
+      <Header
+        title={selectedScreen === 'transactions' ? 'Transactions' : 'Statistics'}
+        showLogout={true}
+        showReloadButton={true}
+        onLogout={handleLogout}
+        onReload={handleReload}
+      />
       <StatusBar
         backgroundColor="#22222c"
         barStyle={Platform.OS === 'ios' ? 'light-content' : 'default'}
         translucent
       />
       <View style={styles.content}>
-        {selectedScreen === 'transactions' && user ? <Transactions transactions={transactions} user={user}/> : user && <Statistics transactions={transactions} user={user}/>}
+        {loading ? (
+          <Loading />
+        ) : selectedScreen === 'transactions' && user ? (
+          <Transactions
+            transactions={transactions}
+            user={user}
+            onAddTransaction={handleAddTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
+          />
+        ) : selectedScreen === 'statistics' && user ? (
+          <Statistics transactions={transactions} user={user} />
+        ) : null}
       </View>
       <Footer onSelect={setSelectedScreen} selectedScreen={selectedScreen} />
     </View>

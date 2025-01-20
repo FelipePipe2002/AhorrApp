@@ -4,7 +4,7 @@ import GlobalText from './GlobalText';
 
 interface FooterProps {
   onSelect: (screen: 'transactions' | 'statistics') => void;
-  selectedScreen: 'transactions' | 'statistics';
+  selectedScreen: 'transactions' | 'statistics' | 'loading';
 }
 
 const Footer: React.FC<FooterProps> = ({ onSelect, selectedScreen }) => {
