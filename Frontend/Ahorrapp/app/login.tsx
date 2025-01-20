@@ -19,6 +19,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
+      setEmail(email.toLowerCase());
       await authService.login(email, password);
       router.replace('/');
     } catch {
