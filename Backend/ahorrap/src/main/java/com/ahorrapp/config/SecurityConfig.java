@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import com.ahorrapp.filter.IpValidationFilter;
 import com.ahorrapp.util.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,18 +30,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter)
+            throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/api/auth/**").permitAll()
-                                .anyRequest().authenticated())
-                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new IpValidationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(Arrays.asList("*"));
-                        config.setAllowedMethods(Collections.singletonList("*"));
+                        config.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE"));
                         config.setAllowCredentials(false);
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setExposedHeaders(List.of("Authorization", "X-XSRF-TOKEN"));
@@ -48,7 +50,6 @@ public class SecurityConfig {
                         return config;
                     }
                 }));
-                        
 
         return http.build();
     }

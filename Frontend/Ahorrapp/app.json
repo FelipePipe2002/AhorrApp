@@ -54,12 +54,6 @@
       "eas": {
         "projectId": "b2672823-f0db-45e5-a43e-a95510a7aebf"
       }
-    },
-    "updates": {
-      "enabled": true,
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/b2672823-f0db-45e5-a43e-a95510a7aebf"
     }
   }
 }

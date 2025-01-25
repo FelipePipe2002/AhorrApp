@@ -44,6 +44,7 @@ export default function Login() {
       <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
       <Button title="Login" onPress={handleLogin} />
       <GlobalText>{'Don\'t have an account? '}<Text style={{ color: 'blue' }} onPress={() => router.push('/register')}>Register</Text></GlobalText>
+      <GlobalText>pepe: {hello}</GlobalText>
     {error ? <GlobalText style={styles.error}>{error}</GlobalText> : null}
     </View>
   );

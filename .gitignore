@@ -1,3 +1,5 @@
 Frontend/android/
 node_modules
 Backend/ahorrap/.env
+Frontend/Ahorrapp/.env
+Frontend/Ahorrapp/android/app/my-release-key.keystore

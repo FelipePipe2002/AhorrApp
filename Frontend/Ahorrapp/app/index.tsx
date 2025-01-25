@@ -5,7 +5,6 @@ import Header from '@/components/Header';
 import authService from '@/services/authService';
 import Transactions from './transactions';
 import Statistics from './statistics';
-import * as Updates from 'expo-updates';
 import Login from './login';
 import { Transaction } from '@/models/transaction';
 import transactionService from '@/services/transactionService';
@@ -61,33 +60,9 @@ export default function Home() {
         setLoading(false);
       }
     };
-
+    
     initialize();
   }, []);
-
-  //checks for updates
-  useEffect(() => {
-    const checkForUpdates = async () => {
-      try {
-        const update = await Updates.checkForUpdateAsync();
-        if (update.isAvailable) {
-          await Updates.fetchUpdateAsync();
-          Alert.alert('Update available!', 'Restarting app to apply the update.');
-          Updates.reloadAsync();
-        }
-      } catch (e) {
-        if (e instanceof Error) {
-          Alert.alert('Error', `Error checking for updates: ${e.message}`);
-        } else {
-          Alert.alert('Error', 'An unknown error occurred.');
-        }
-      }
-    };
-    checkForUpdates();
-    const interval = setInterval(checkForUpdates, 10000); // 10 seconds
-    return () => clearInterval(interval);
-  }, []);
-
 
   //header functions
   const handleLogout = async () => {
