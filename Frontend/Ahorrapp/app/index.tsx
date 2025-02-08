@@ -10,6 +10,7 @@ import { Transaction } from '@/models/transaction';
 import transactionService from '@/services/transactionService';
 import { User } from '@/models/user';
 import Loading from './loading';
+import colors from '@/utils/colors';
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -23,6 +24,7 @@ export default function Home() {
     setLoading(true);
     try {
       const data = await transactionService.getTransactionsByUser();
+      data.transactions.sort(sortDates);
       setTransactions(data.transactions);
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -31,12 +33,33 @@ export default function Home() {
     }
   };
 
+  const sortDates = (a: Transaction, b: Transaction) => {
+    const [dayA, monthA, yearA] = a.date.split('/').map(Number);
+    const [dayB, monthB, yearB] = b.date.split('/').map(Number);
+    const dateA = new Date(yearA, monthA - 1, dayA);
+    const dateB = new Date(yearB, monthB - 1, dayB);
+    return dateB.getTime() - dateA.getTime();
+  }
+
+
+  //TODO: find a way to be able to call this methods without having to pass them as params
   const handleAddTransaction = async (newTransaction: Transaction) => {
-    setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
+    console.log("adding transaction", newTransaction);
+    setTransactions((prevTransactions) => {
+      const updatedTransactions = [newTransaction, ...prevTransactions];
+      updatedTransactions.sort(sortDates);
+      return updatedTransactions;
+    });
   };
 
   const handleDeleteTransaction = async (id: number) => {
+    console.log("deleting transaction", id);
     setTransactions(transactions.filter((t) => t.id !== id));
+  }
+
+  const handleUpdateTransaction = async (updatedTransaction: Transaction) => {
+    console.log("updating transaction", updatedTransaction);
+    setTransactions(transactions.map((t) => t.id === updatedTransaction.id ? updatedTransaction : t));
   }
 
 
@@ -91,7 +114,7 @@ export default function Home() {
         onReload={handleReload}
       />
       <StatusBar
-        backgroundColor="#22222c"
+        backgroundColor={colors.background}
         barStyle={Platform.OS === 'ios' ? 'light-content' : 'default'}
         translucent
       />
@@ -104,6 +127,7 @@ export default function Home() {
             user={user}
             onAddTransaction={handleAddTransaction}
             onDeleteTransaction={handleDeleteTransaction}
+            onUpdateTransaction={handleUpdateTransaction}
           />
         ) : selectedScreen === 'statistics' && user ? (
           <Statistics transactions={transactions} user={user} />
@@ -117,7 +141,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#242b3e',
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,

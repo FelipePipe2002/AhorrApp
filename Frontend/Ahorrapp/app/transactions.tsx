@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, Button, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import transactionService from '@/services/transactionService';
 import { Transaction } from '@/models/transaction';
 import GlobalText from '@/components/GlobalText';
 import { User } from '@/models/user';
+import { formatNumber } from '@/services/functionalMehods';
+import TransactionComponent from '@/components/transactionComponent';
+import TransactionForm from '@/components/transactionForm';
+import colors from '@/utils/colors';
+import transactionService from '@/services/transactionService';
 import DynamicCategorySelector from '@/components/DynamicCategorySelector';
 
 type TransactionsProps = {
@@ -11,13 +15,12 @@ type TransactionsProps = {
   user: User;
   onAddTransaction?: (transaction: Transaction) => void;
   onDeleteTransaction?: (id: number) => void;
+  onUpdateTransaction?: (transaction: Transaction) => void;
 };
 
-export default function Transactions({ transactions, user, onAddTransaction,onDeleteTransaction}: TransactionsProps) {
+export default function Transactions({ transactions, user, onAddTransaction = () => { }, onDeleteTransaction = () => { }, onUpdateTransaction = () => { } }: TransactionsProps) {
   // Summary
-  const [income, setIncome] = useState<number>(0);
-  const [expense, setExpense] = useState<number>(0);
-
+  const [balance, setbalance] = useState<number>(0);
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 3;
@@ -25,49 +28,45 @@ export default function Transactions({ transactions, user, onAddTransaction,onDe
   // Transaction Add
   const [showModal, setShowModal] = useState(false);
 
-  // Transaction Categories
-  const [categories, setCategories] = useState<string[]>([]);
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState<string>('');
 
-  // Transaction form
-  const [amount, setAmount] = useState('');
-  const [type, setType] = useState<'INCOME' | 'EXPENSE'>('INCOME');
-  const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
+  const fetchCategories = async () => {
+    try {
+      const categories = await transactionService.getCategories();
+      setFetchedCategories(categories.categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleCategoryChange = (category: string) => {
+    setCategory(category);
+  };
+
+  const filteredTransactions = category && fetchedCategories.includes(category)
+    ? transactions.filter((transaction) => transaction.category === category)
+    : transactions;
 
   // Summary
   useEffect(() => {
-    const calculateIncomeAndExpense = () => {
-      let income = 0;
-      let expense = 0;
-
-      transactions.forEach((transaction) => {
-        if (transaction.type === 'INCOME') {
-          income += transaction.amount;
-        } else {
-          expense += transaction.amount;
-        }
-      });
-
-      income = parseFloat(income.toFixed(2));
-      expense = parseFloat(expense.toFixed(2));
-
-      setIncome(income);
-      setExpense(expense);
-    };
-
-    const fetchCategories = async () => {
-      const categories = await transactionService.getCategories();
-      setCategories(categories.categories);
-    }
-
-    calculateIncomeAndExpense();
-    fetchCategories();
+    setbalance(transactions.reduce((acc, transaction) => {
+      if (transaction.type === 'INCOME') {
+        return acc + transaction.amount;
+      } else if (transaction.type === 'EXPENSE') {
+        return acc - transaction.amount;
+      }
+      return acc;
+    }, 0));
   }, [transactions]);
 
   // Pagination
-  const totalPages = Math.ceil(transactions.length / pageSize);
-  const currentTransactions = transactions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.ceil(filteredTransactions.length / pageSize);
+  const currentTransactions = filteredTransactions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -81,124 +80,57 @@ export default function Transactions({ transactions, user, onAddTransaction,onDe
     }
   };
 
-  // Transaction CRUD
   const handleDeleteTransaction = async (id: number) => {
-    try {
-      await transactionService.deleteTransaction(id);
-      onDeleteTransaction?.(id);
-    } catch (error) {
-      console.error('Error deleting transaction:', error);
-    }
+    onDeleteTransaction(id);
+    fetchCategories();
   }
 
-  const handleAddTransaction = async () => {
-    if (!amount || !category) {
-      Alert.alert('Validation Error', 'Amount and category are required!');
-      return;
-    }
+  const handleUpdateTransaction = async (transaction: Transaction) => {
+    onUpdateTransaction(transaction);
+    fetchCategories();
+  }
 
-    const newTransaction: Transaction = {
-      id: 0, // the backend will generate the id
-      amount: parseFloat(amount),
-      type,
-      category,
-      date: new Date().toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-      description,
-      userId: 0, // the backend will set the user id
-    };
-
-    try {
-      const data = await transactionService.addTransaction(newTransaction);
-      onAddTransaction?.(data.transaction);
-      setShowModal(false);
-      resetForm();
-    } catch (error) {
-      console.error('Error adding transaction:', error);
-    }
-  };
-
-  const handleCategoryChange = (value: string) => {
-    const isMatch = categories.some((cat) => cat.toLowerCase() === value.toLowerCase());
-    setIsCustomCategory(!isMatch);
-    setCategory(value);
-  };
-
-  const resetForm = () => {
-    setAmount('');
-    setCategory('');
-    setDescription('');
-    setType('INCOME');
-  };
+  const handleAddTransaction = async (transaction: Transaction) => {
+    onAddTransaction(transaction);
+    fetchCategories();
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.summaryCard}>
         <GlobalText style={styles.title}>Hello, {user.name || 'User'}!</GlobalText>
-        <GlobalText> Total Balance: ${(income - expense).toFixed(2)}</GlobalText>
-        <GlobalText> Income: ${income}</GlobalText>
-        <GlobalText> Expense: ${expense}</GlobalText>
+        <GlobalText> Total Balance: ${formatNumber(balance)}</GlobalText>
+        <GlobalText />
         <Button title="Add Transaction" onPress={() => setShowModal(true)} />
       </View>
       <Modal visible={showModal} animationType="slide" transparent={true}>
         <TouchableWithoutFeedback
           onPress={() => {
             setShowModal(false);
-            resetForm();
             Keyboard.dismiss();
           }}
         >
-          <View style={styles.modalContainer}>
-            <TouchableWithoutFeedback onPress={() => { }}>
-              <View style={styles.modalContent}>
-                <GlobalText style={styles.modalTitle}>Add New Transaction</GlobalText>
-                <TextInput
-                  placeholder="Amount"
-                  keyboardType="numeric"
-                  value={amount}
-                  onChangeText={setAmount}
-                  style={styles.input}
-                />
-                <DynamicCategorySelector
-                  categories={categories}
-                  onCategoryChange={handleCategoryChange}
-                />
-                <TextInput
-                  placeholder="Description"
-                  value={description}
-                  onChangeText={setDescription}
-                  style={styles.input}
-                />
-                <View style={styles.typeButtons}>
-                  <Button title="Income" onPress={() => setType('INCOME')} color={type === 'INCOME' ? 'green' : 'gray'} />
-                  <Button title="Expense" onPress={() => setType('EXPENSE')} color={type === 'EXPENSE' ? 'red' : 'gray'} />
-                </View>
-                <View style={styles.modalButtons}>
-                  <Button title="Add" onPress={handleAddTransaction} />
-                  <Button title="Cancel" onPress={() => setShowModal(false)} color="red" />
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
+          <TransactionForm onAddTransaction={handleAddTransaction} showModal={setShowModal} User={user} />
         </TouchableWithoutFeedback>
       </Modal>
+
+      <DynamicCategorySelector
+        selectedCategory={category}
+        categories={fetchedCategories}
+        onCategoryChange={handleCategoryChange}
+        style={styles.input}
+      />
 
       <FlatList
         data={currentTransactions}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={[styles.transactionCard]}>
-            <GlobalText style={[styles.amountText, item.type === 'EXPENSE' ? { color: 'red' } : { color: 'green' }]}>
-              {item.type === 'EXPENSE' ? '- ' : ''}${item.amount}
-            </GlobalText>
-            <GlobalText style={styles.categoryText}>{item.category}</GlobalText>
-            <GlobalText style={styles.dateText}>{item.date}</GlobalText>
-            <GlobalText style={styles.descriptionText}>{item.description}</GlobalText>
-            <Button title="Delete" onPress={() => handleDeleteTransaction(item.id)} />
-          </View>
+          <TransactionComponent item={item} onDelete={handleDeleteTransaction} onAdd={handleAddTransaction} onUpdate={handleUpdateTransaction} User={user} />
         )}
       />
       <View style={styles.paginationButtons}>
         <Button title="Previous" onPress={handlePreviousPage} disabled={currentPage === 1} />
+        <GlobalText style={styles.paginationText}>{currentPage} / {totalPages}</GlobalText>
         <Button title="Next" onPress={handleNextPage} disabled={currentPage === totalPages} />
       </View>
     </View>
@@ -207,6 +139,7 @@ export default function Transactions({ transactions, user, onAddTransaction,onDe
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 20,
   },
   filterContainer: {
@@ -214,101 +147,41 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginBottom: 10,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 18,
-    marginBottom: 15,
-  },
-  transactionCard: {
-    backgroundColor: '#454c56',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    margin: 20,
-    padding: 20,
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  typeButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 8,
-    borderRadius: 5,
-  },
   summaryCard: {
-    backgroundColor: '#454c56',
+    backgroundColor: colors.component,
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
-  },
-  idText: {
-    fontWeight: 'bold',
-  },
-  amountText: {
-    fontSize: 18,
-    color: '#007700',
-  },
-  picker: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: 'gray',
-    marginBottom: 10,
-    borderRadius: 5,
-  },
-  typeText: {
-    fontSize: 16,
-    color: '#0077cc',
-  },
-  categoryText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#777',
-  },
-  descriptionText: {
-    marginTop: 5,
-    fontSize: 14,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   paginationButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 10,
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
+  },
+  paginationText: {
+    fontSize: 16,
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: '-50%' }],
+  },
+  input: {
+    height: 40,
+    backgroundColor: 'white',
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
 });
 

@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
-import {  View,  TextInput,  FlatList,  TouchableOpacity,  Text,  StyleSheet,} from 'react-native';
+import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet, } from 'react-native';
 
 interface DynamicCategorySelectorProps {
+  selectedCategory?: string;
   categories: string[];
   onCategoryChange: (category: string) => void;
+  style?: any;
 }
 
-const DynamicCategorySelector: React.FC<DynamicCategorySelectorProps> = ({
-  categories,
-  onCategoryChange,
-}) => {
-  const [query, setQuery] = useState('');
+const DynamicCategorySelector: React.FC<DynamicCategorySelectorProps> = ({ selectedCategory, categories, onCategoryChange, style, }) => {
+  const [query, setQuery] = React.useState(selectedCategory || ''); //TODO: test this
   const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
 
   const handleQueryChange = (text: string) => {
     setQuery(text);
-    onCategoryChange(text); 
+    onCategoryChange(text);
 
     if (text.trim() === '') {
       setFilteredCategories([]);
@@ -34,7 +33,7 @@ const DynamicCategorySelector: React.FC<DynamicCategorySelectorProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={style}>
       <TextInput
         style={styles.input}
         placeholder="Enter or select a category"
@@ -64,16 +63,8 @@ const DynamicCategorySelector: React.FC<DynamicCategorySelectorProps> = ({
 export default DynamicCategorySelector;
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
   input: {
     height: 40,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    backgroundColor: '#fff',
   },
   suggestionsContainer: {
     position: 'absolute',

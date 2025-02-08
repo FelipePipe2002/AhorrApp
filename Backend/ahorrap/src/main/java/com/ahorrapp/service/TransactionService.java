@@ -6,6 +6,8 @@ import com.ahorrapp.model.User;
 import com.ahorrapp.repository.TransactionRepository;
 import com.ahorrapp.repository.UserRepository;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -64,8 +66,25 @@ public class TransactionService {
     }
 
     public List<String> getCategories(Long id) {
-        System.out.println("ID: " + id);
-        System.out.println(transactionRepository.findDistinctCategoriesByUserId(id));
         return transactionRepository.findDistinctCategoriesByUserId(id);
+    }
+
+    public Transaction updateTransaction(TransactionDTO transactionRequest, User user) {
+        Optional<Transaction> transactionOptional = transactionRepository.findById(transactionRequest.getId());
+        if (transactionOptional.isPresent()) {
+            Transaction transaction = transactionOptional.get();
+            if (transaction.getUser().getId().equals(user.getId())) {
+                transaction.setType(transactionRequest.getType());
+                transaction.setCategory(transactionRequest.getCategory());
+                transaction.setAmount(transactionRequest.getAmount());
+                transaction.setDescription(transactionRequest.getDescription());
+                transaction.setDate(transactionRequest.getDate());
+                return transactionRepository.save(transaction);
+            } else {
+                throw new IllegalArgumentException("Transaction not found");
+            }
+        } else {
+            throw new IllegalArgumentException("Transaction not found");
+        }
     }
 }

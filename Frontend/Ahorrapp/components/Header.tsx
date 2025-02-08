@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import GlobalText from './GlobalText';
+import colors from '@/utils/colors';
 
 interface HeaderProps {
   title: string;
@@ -39,11 +40,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#22222c',
+    backgroundColor: colors.darkest,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderColor: '#444',
+    borderColor: colors.component,
   },
   title: {
     fontSize: 20,

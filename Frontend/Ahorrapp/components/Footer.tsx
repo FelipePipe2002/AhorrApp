@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import GlobalText from './GlobalText';
+import colors from '@/utils/colors';
 
 interface FooterProps {
   onSelect: (screen: 'transactions' | 'statistics') => void;
@@ -33,7 +34,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#22222c',
+    backgroundColor: colors.darkest,
+    borderTopWidth: 1,
+    borderColor: colors.component,
     paddingVertical: 10,
     position: 'absolute',
     bottom: 0,

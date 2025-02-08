@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import authService from '@/services/authService';
 import GlobalText from '@/components/GlobalText';
+import colors from '@/utils/colors';
 
 export default function Login() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function Login() {
       setError('Invalid email or password');
     }
   };
-  
+
   const getHello = async () => {
     try {
       const response = await authService.getHello();
@@ -43,9 +44,14 @@ export default function Login() {
       <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} />
       <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
       <Button title="Login" onPress={handleLogin} />
-      <GlobalText>{'Don\'t have an account? '}<Text style={{ color: 'blue' }} onPress={() => router.push('/register')}>Register</Text></GlobalText>
+      <GlobalText style={{ marginTop: 5 }}>
+        {"Don't have an account? "}
+        <Text style={{ color: "#464db3" }} onPress={() => router.push('/register')}>
+          Register
+        </Text>
+      </GlobalText>
       <GlobalText>pepe: {hello}</GlobalText>
-    {error ? <GlobalText style={styles.error}>{error}</GlobalText> : null}
+      {error ? <GlobalText style={styles.error}>{error}</GlobalText> : null}
     </View>
   );
 }
@@ -55,11 +61,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAlign: 'center',
   },
   input: {
     height: 40,
@@ -68,6 +76,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 8,
     borderRadius: 5,
+    backgroundColor: 'white',
   },
   error: {
     color: 'red',

@@ -14,6 +14,13 @@ const transactionService = {
         return response.data;
     },
 
+    updateTransaction: async (transaction: Transaction) => {
+        console.log(transaction);
+        const api = await createApiInstance();
+        const response = await api.put('/transactions/update', transaction);
+        return response.data;
+    },
+    
     deleteTransaction: async (id: number) => {
         const api = await createApiInstance();
         const response = await api.delete(`/transactions/delete`, { params: { id } });

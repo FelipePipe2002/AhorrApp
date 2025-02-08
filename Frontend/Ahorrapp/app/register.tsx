@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import authService from '@/services/authService';
+import colors from '@/utils/colors';
+import GlobalText from '@/components/GlobalText';
 
 export default function Register() {
   const router = useRouter();
@@ -27,7 +29,7 @@ export default function Register() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
+      <GlobalText style={styles.title}>Register</GlobalText>
       <TextInput
         placeholder="First Name"
         value={name}
@@ -55,6 +57,12 @@ export default function Register() {
         style={styles.input}
       />
       <Button title="Register" onPress={handleRegister} />
+      <GlobalText style={{ marginTop: 5 }}>
+        Already have an account?{' '}
+        <Text style={{ color: "#464db3"  }} onPress={() => router.push('/login')}>
+          Login
+        </Text>
+      </GlobalText>
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {success ? <Text style={styles.success}>{success}</Text> : null}
     </View>
@@ -66,6 +74,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 24,
@@ -80,6 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 8,
     borderRadius: 5,
+    backgroundColor: 'white',
   },
   error: {
     color: 'red',

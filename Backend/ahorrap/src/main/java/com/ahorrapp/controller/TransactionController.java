@@ -21,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RequestMapping("/api/transactions")
 public class TransactionController {
 
+    //TODO: encrypt the transactions with a master key encrypted with the user's password and store it in the database
+
     @Autowired
     private TransactionService transactionService;
 
@@ -30,30 +32,26 @@ public class TransactionController {
     @PostMapping("/add")
     public ResponseEntity<Map<String, Object>> addTransaction(
             @Valid @RequestBody TransactionDTO transactionRequest) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-
-        User user = userService.getUserByEmail(userEmail);
-        TransactionDTO transaction = mapperDTOModel.mapToResponseDTO(transactionService.createTransaction(transactionRequest, user));
+        TransactionDTO transaction = mapperDTOModel.mapToResponseDTO(transactionService.createTransaction(transactionRequest, getUser()));
         return ResponseEntity.ok(Map.of("message", "Transaction created successfully", "transaction", transaction));
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Map<String, Object>> deleteTransaction(@RequestParam Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-        User user = userService.getUserByEmail(userEmail);
-        transactionService.deleteTransaction(id, user);
+        transactionService.deleteTransaction(id, getUser());
         return ResponseEntity.ok(Map.of("message", "Transaction deleted successfully"));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Map<String, Object>> updateTransaction(
+            @Valid @RequestBody TransactionDTO transactionRequest) {
+        TransactionDTO transaction = mapperDTOModel.mapToResponseDTO(transactionService.updateTransaction(transactionRequest, getUser()));
+        return ResponseEntity.ok(Map.of("message", "Transaction updated successfully", "transaction", transaction));
     }
 
     @GetMapping("/mine")
     public ResponseEntity<Map<String, Object>> getMyTransactions() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-
-        User user = userService.getUserByEmail(userEmail);
-        List<TransactionDTO> transactions = transactionService.getTransactionsByUserId(user.getId()).stream()
+        List<TransactionDTO> transactions = transactionService.getTransactionsByUserId(getUserId()).stream()
                 .map(mapperDTOModel::mapToResponseDTO)
                 .toList();
         return ResponseEntity.ok(Map.of("transactions", transactions));
@@ -61,10 +59,19 @@ public class TransactionController {
 
     @GetMapping("/categories")
     public ResponseEntity<Map<String, Object>> getCategories() {
+        return ResponseEntity.ok(Map.of("categories", transactionService.getCategories(getUserId())));
+    }
+
+    private Long getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
-        Long userId = userService.getUserByEmail(userEmail).getId();
-        return ResponseEntity.ok(Map.of("categories", transactionService.getCategories(userId)));
+        return userService.getUserByEmail(userEmail).getId();
+    }
+
+    private User getUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        return userService.getUserByEmail(userEmail);
     }
 
 }
