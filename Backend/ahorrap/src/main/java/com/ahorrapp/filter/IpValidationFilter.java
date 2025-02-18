@@ -13,26 +13,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class IpValidationFilter extends OncePerRequestFilter {
-    
-    private static final List<String> ALLOWED_IP_RANGES = Arrays.asList( //only accepting requests from Argentina and 
+
+    private static final List<String> ALLOWED_IP_RANGES = Arrays.asList( // only accepting requests from Argentina and
             "181.0.0.0/8",
             "186.0.0.0/8",
             "192.168.0.0/16",
-            "127.0.0.0/8"
-    );
-            
+            "127.0.0.0/8");
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String clientIp = getClientIp(request);
-        System.out.println("Client IP: " + clientIp);
+        System.out.print("Client IP: " + clientIp);
 
         if (isIpAllowed(clientIp)) {
             filterChain.doFilter(request, response);
+            System.out.println(" IP Allowed");
         } else {
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.getWriter().write("Access Denied: IP not allowed.");
+            System.out.println(" IP Not Allowed");
         }
+        System.out.println(" Request: " + request.getRequestURI());
     }
 
     private String getClientIp(HttpServletRequest request) {

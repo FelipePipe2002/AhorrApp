@@ -46,11 +46,13 @@ export default function Transactions({ transactions, user, onAddTransaction = ()
 
   const handleCategoryChange = (category: string) => {
     setCategory(category);
+    if(fetchedCategories.includes(category) || category==='')  setCurrentPage(1);
   };
 
   const filteredTransactions = category && fetchedCategories.includes(category)
     ? transactions.filter((transaction) => transaction.category === category)
     : transactions;
+
 
   // Summary
   useEffect(() => {

@@ -18,7 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
-@RequestMapping("/api/transactions")
+@RequestMapping("/transactions")
 public class TransactionController {
 
     //TODO: encrypt the transactions with a master key encrypted with the user's password and store it in the database

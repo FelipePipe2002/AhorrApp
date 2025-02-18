@@ -9,7 +9,7 @@ interface DynamicCategorySelectorProps {
 }
 
 const DynamicCategorySelector: React.FC<DynamicCategorySelectorProps> = ({ selectedCategory, categories, onCategoryChange, style, }) => {
-  const [query, setQuery] = React.useState(selectedCategory || ''); //TODO: test this
+  const [query, setQuery] = React.useState(selectedCategory || ''); 
   const [filteredCategories, setFilteredCategories] = useState<string[]>([]);
 
   const handleQueryChange = (text: string) => {
