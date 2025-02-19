@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, StatusBar, Platform, Alert } from 'react-native';
+import { View, StyleSheet, StatusBar, Platform, Alert } from 'react-native';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import authService from '@/services/authService';
@@ -11,6 +11,7 @@ import transactionService from '@/services/transactionService';
 import { User } from '@/models/user';
 import Loading from './loading';
 import colors from '@/utils/colors';
+import ReactNativeBiometrics from 'react-native-biometrics';
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -19,7 +20,74 @@ export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  //handles the transactions
+  // Función para manejar la autenticación biométrica
+  const handleBiometricAuth = async () => {
+    const rnBiometrics = new ReactNativeBiometrics();
+
+    try {
+      // Verifica si el dispositivo soporta autenticación biométrica
+      const { available } = await rnBiometrics.isSensorAvailable();
+      if (!available) {
+        Alert.alert(
+          'Biometría no disponible',
+          'Tu dispositivo no soporta autenticación biométrica.'
+        );
+        return false;
+      }
+
+      // Solicita autenticación biométrica
+      const { success } = await rnBiometrics.simplePrompt({
+        promptMessage: 'Autentícate para acceder a la aplicación',
+      });
+
+      if (success) {
+        Alert.alert('Éxito', 'Autenticación biométrica exitosa.');
+        return true;
+      } else {
+        Alert.alert('Error', 'Autenticación biométrica fallida.');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error en la autenticación biométrica:', error);
+      return false;
+    }
+  };
+
+  // Función para inicializar la aplicación (validar token y autenticación biométrica)
+  const initializeApp = async () => {
+    setLoading(true);
+    try {
+      // Verificar el token
+      const valid = await authService.verifyToken();
+      setIsAuthenticated(valid);
+
+      if (valid) {
+        // Solicitar autenticación biométrica
+        const biometricSuccess = await handleBiometricAuth();
+        if (!biometricSuccess) {
+          setIsAuthenticated(false); // Si la autenticación biométrica falla, cierra la sesión
+          return;
+        }
+
+        // Obtener información del usuario y transacciones
+        const userData = await authService.getUserInfo();
+        setUser(userData);
+
+        await fetchTransactions();
+      }
+    } catch (error) {
+      console.error('Error durante la inicialización:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
+  // Función para obtener las transacciones
   const fetchTransactions = async () => {
     setLoading(true);
     try {
@@ -27,24 +95,24 @@ export default function Home() {
       data.transactions.sort(sortDates);
       setTransactions(data.transactions);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error('Error obteniendo transacciones:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Función para ordenar transacciones por fecha
   const sortDates = (a: Transaction, b: Transaction) => {
     const [dayA, monthA, yearA] = a.date.split('/').map(Number);
     const [dayB, monthB, yearB] = b.date.split('/').map(Number);
     const dateA = new Date(yearA, monthA - 1, dayA);
     const dateB = new Date(yearB, monthB - 1, dayB);
     return dateB.getTime() - dateA.getTime();
-  }
+  };
 
-
-  //TODO: find a way to be able to call this methods without having to pass them as params
+  // Funciones para manejar transacciones
   const handleAddTransaction = async (newTransaction: Transaction) => {
-    console.log("adding transaction", newTransaction);
+    console.log('Agregando transacción:', newTransaction);
     setTransactions((prevTransactions) => {
       const updatedTransactions = [newTransaction, ...prevTransactions];
       updatedTransactions.sort(sortDates);
@@ -53,41 +121,16 @@ export default function Home() {
   };
 
   const handleDeleteTransaction = async (id: number) => {
-    console.log("deleting transaction", id);
+    console.log('Eliminando transacción:', id);
     setTransactions(transactions.filter((t) => t.id !== id));
-  }
+  };
 
   const handleUpdateTransaction = async (updatedTransaction: Transaction) => {
-    console.log("updating transaction", updatedTransaction);
-    setTransactions(transactions.map((t) => t.id === updatedTransaction.id ? updatedTransaction : t));
-  }
+    console.log('Actualizando transacción:', updatedTransaction);
+    setTransactions(transactions.map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t)));
+  };
 
-
-  //validates token
-  useEffect(() => {
-    const initialize = async () => {
-      setLoading(true);
-      try {
-        const valid = await authService.verifyToken();
-        setIsAuthenticated(valid);
-
-        if (valid) {
-          const data = await authService.getUserInfo();
-          setUser(data);
-
-          await fetchTransactions();
-        }
-      } catch (error) {
-        console.error('Error during initialization:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    initialize();
-  }, []);
-
-  //header functions
+  // Funciones del header
   const handleLogout = async () => {
     await authService.logout();
     setIsAuthenticated(false);
@@ -99,11 +142,12 @@ export default function Home() {
     setLoading(false);
   };
 
-
+  // Si no está autenticado, mostrar la pantalla de login
   if (!isAuthenticated) {
     return <Login />;
   }
 
+  // Renderizar la interfaz principal
   return (
     <View style={styles.container}>
       <Header

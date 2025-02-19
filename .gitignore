@@ -6,3 +6,4 @@ Frontend/Ahorrapp/android/app/my-release-key.keystore
 Backend/ahorrap/app.log
 Backend/ahorrap/app.log.*
 Database/dump.sql
+Frontend/Ahorrapp/utils/env.js

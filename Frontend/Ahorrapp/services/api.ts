@@ -1,5 +1,6 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 import { getAuthToken } from './tokenStorage';
+import env from '@/utils/env';
 
 let apiInstance: any = null; // Singleton instance
 
@@ -10,7 +11,7 @@ const createApiInstance = async () => {
   }
 
   apiInstance = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL,
+    baseURL: env.API_URL,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',

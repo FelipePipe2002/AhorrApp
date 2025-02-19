@@ -10,7 +10,6 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    //TODO: move to .env later, it will be changed
     private static final Dotenv dotenv = Dotenv.load();
     private final String SECRET_KEY = loadSecretKey();
     private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
