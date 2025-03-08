@@ -41,7 +41,6 @@ export default function Home() {
       });
 
       if (success) {
-        Alert.alert('Éxito', 'Autenticación biométrica exitosa.');
         return true;
       } else {
         Alert.alert('Error', 'Autenticación biométrica fallida.');
@@ -59,7 +58,6 @@ export default function Home() {
     try {
       // Verificar el token
       const valid = await authService.verifyToken();
-      setIsAuthenticated(valid);
 
       if (valid) {
         // Solicitar autenticación biométrica
@@ -67,6 +65,8 @@ export default function Home() {
         if (!biometricSuccess) {
           setIsAuthenticated(false); // Si la autenticación biométrica falla, cierra la sesión
           return;
+        } else {
+          setIsAuthenticated(true);
         }
 
         // Obtener información del usuario y transacciones
@@ -152,8 +152,6 @@ export default function Home() {
     <View style={styles.container}>
       <Header
         title={selectedScreen === 'transactions' ? 'Transactions' : 'Statistics'}
-        showLogout={true}
-        showReloadButton={true}
         onLogout={handleLogout}
         onReload={handleReload}
       />

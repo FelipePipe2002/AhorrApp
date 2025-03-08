@@ -25,6 +25,8 @@ public class TransactionDTO {
     @NotBlank(message = "La fecha es obligatoria.")
     private String date;
 
+    private String image;
+
     @NotNull(message = "El ID del usuario es obligatorio.")
     private Long userId;
 }

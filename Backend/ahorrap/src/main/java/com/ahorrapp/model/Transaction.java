@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionType type; 
+    private TransactionType type;
 
     @Column(nullable = false)
     private String category;
@@ -34,6 +35,9 @@ public class Transaction {
 
     @Column(nullable = false)
     private String date;
+
+    @Column(name = "image", columnDefinition = "TEXT") // Usa TEXT si es una URL larga o base64
+    private String image;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

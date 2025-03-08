@@ -1,36 +1,112 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
+import Modal from 'react-native-modal';
 import GlobalText from './GlobalText';
 import colors from '@/utils/colors';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface HeaderProps {
   title: string;
-  showLogout?: boolean;
-  showReloadButton?: boolean;
   onLogout?: () => void;
   onReload?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, showLogout, showReloadButton, onLogout, onReload }) => {
+const Header: React.FC<HeaderProps> = ({ title, onLogout, onReload }) => {
+  const [showModal, setShowModal] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+
+
+  const UserConfig = () => {
+    if (!showModal) {
+      setShowModal(true);
+    } else {
+      setShowModal(false);
+    }
+  };
+
+  const toggleModal = () => setShowModal(!showModal);
+  const toggleBiometric = () => setBiometricEnabled(!biometricEnabled);
+
+
   return (
     <View style={styles.headerContainer}>
+
+      <TouchableOpacity onPress={UserConfig}>
+        <Icon
+          name="perm-identity"
+          size={24}
+          style={[styles.icon, { paddingHorizontal: 5 }]}
+        />
+      </TouchableOpacity>
+
+      <Modal
+        useNativeDriver={false}
+        isVisible={showModal}
+        animationIn="fadeInLeft"
+        animationOut="fadeOutLeft"
+        backdropTransitionOutTiming={1}
+        onBackdropPress={() => {
+          setShowModal(false);
+        }}
+        style={{ margin: 0 }}
+      >
+        <View style={styles.panel}>
+          {/* Activar/Desactivar Biometría */}
+            <TouchableOpacity onPress={toggleBiometric}>
+              <View style={styles.button}>
+                <Icon name="fingerprint" size={24} style={styles.icon} />
+                <GlobalText style={styles.buttonText}>Usar Biometría</GlobalText>
+                <Switch value={biometricEnabled} onValueChange={toggleBiometric} />
+              </View>
+            </TouchableOpacity>
+
+          {/* Modificar Categorías */}
+          <TouchableOpacity onPress={() => Alert.alert('Modificar categorías')}>
+            <View style={styles.button}>
+              <Icon name="category" size={24} style={styles.icon} />
+              <GlobalText style={styles.buttonText}>Modificar Categorías</GlobalText>
+            </View>
+          </TouchableOpacity>
+
+          {/* Modificar Notificaciones */}
+          <TouchableOpacity onPress={() => Alert.alert('Modificar notificaciones')}>
+            <View style={styles.button}>
+              <Icon name="notifications" size={24} style={styles.icon} />
+              <GlobalText style={styles.buttonText}>Notificaciones</GlobalText>
+            </View>
+          </TouchableOpacity>
+
+          {/* Generar Reporte */}
+          <TouchableOpacity onPress={() => Alert.alert('Generar Reporte')}>
+            <View style={styles.button}>
+              <Icon name="bar-chart" size={24} style={styles.icon} />
+              <GlobalText style={styles.buttonText}>Generar Reporte</GlobalText>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       
       {/* Title */}
       <GlobalText style={styles.title}>{title}</GlobalText>
 
-      {/* Reload Button */}
-      {showReloadButton && (
-        <TouchableOpacity onPress={onReload} style={styles.reloadButton}>
-          <GlobalText style={styles.reloadText}>Reload</GlobalText>
+      <View style={styles.iconsLeft}>
+        <TouchableOpacity onPress={onReload}>
+          <Icon
+            name="autorenew"
+            size={24}
+            style={styles.icon}
+          />
         </TouchableOpacity>
-      )}
 
-      {/* Logout Button */}
-      {showLogout && (
-        <TouchableOpacity onPress={onLogout} style={styles.logoutButton}>
-          <GlobalText style={styles.logoutText}>Logout</GlobalText>
+        <TouchableOpacity onPress={onLogout}>
+          <Icon
+            name="logout"
+            size={24}
+            style={styles.icon}
+          />
         </TouchableOpacity>
-      )}
+      </View>
+
     </View>
   );
 };
@@ -38,36 +114,48 @@ const Header: React.FC<HeaderProps> = ({ title, showLogout, showReloadButton, on
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.darkest,
     paddingVertical: 15,
-    paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderColor: colors.component,
   },
   title: {
+    position: 'absolute',
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
     flex: 1,
+    left: '50%',
+    transform: [{ translateX: '-50%' }],
   },
-  reloadButton: {
+  iconsLeft: {
     position: 'absolute',
-    left: 10,
+    right: 0,
+    paddingHorizontal: 5,
+    flexDirection: 'row',
   },
-  reloadText: {
-    fontSize: 18,
-    color: '#4caf50', // Green for reload button
+  icon: {
+    color: colors.text,
+    marginHorizontal: 5,
   },
-  logoutButton: {
-    position: 'absolute',
-    right: 10,
+  panel: {
+    height: '100%',
+    width: '60%',
+    backgroundColor: colors.component,
   },
-  logoutText: {
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderColor: colors.component,
+  },
+  buttonText: {
     fontSize: 16,
-    color: '#ff4d4d',
+    color: colors.text,
+    marginLeft: 10,
   },
 });
 

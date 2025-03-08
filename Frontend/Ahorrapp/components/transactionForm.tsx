@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Alert, Button, StyleSheet, TextInput, View, Platform, TouchableOpacity } from 'react-native';
+import { Alert, Button, StyleSheet, TextInput, View, Platform, TouchableOpacity, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DynamicCategorySelector from './DynamicCategorySelector';
 import { Transaction } from '@/models/transaction';
@@ -28,11 +30,36 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, on
         return parsedDate;
     };
 
+    const pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 0.7, // Reduce la calidad para comprimir
+            base64: true,
+        });
+
+        if (!result.canceled) {
+            const compressed = await ImageManipulator.manipulateAsync(
+                result.assets[0].uri,
+                [{ resize: { width: 500 } }], // Reducir tamaño a 500px de ancho
+                { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+            );
+
+            // Guardar la imagen comprimida en base64
+            if (compressed.base64) {
+                setImage(compressed.base64);
+            }
+
+            console.log('Image selected:', compressed);
+        }
+    };
+
     const [type, setType] = useState(item?.type || 'EXPENSE');
     const [amount, setAmount] = useState(item?.amount !== undefined ? item.amount.toString().replace('.', ',') : '');
     const [category, setCategory] = useState(item?.category || '');
     const [description, setDescription] = useState(item?.description || '');
     const [date, setDate] = useState(item?.date ? parseDate(item.date) : new Date(new Date().setHours(new Date().getHours() - 3)));
+    const [image, setImage] = useState(item?.image || null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
     const editing = !!item;
@@ -69,7 +96,8 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, on
             category,
             date: date.toISOString().replace('T', ' ').substring(0, 19),
             description,
-            userId: User?.id || 0
+            image,  
+            userId: User?.id || 0,
         };
 
         try {
@@ -85,7 +113,7 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, on
         } catch (error) {
             console.error(editing ? 'Error updating transaction:' : 'Error adding transaction:', error);
         }
-    }, [amount, category, date, description, editing, item?.id, onAddTransaction, onUpdateTransaction, showModal, type, User?.id]);
+    }, [amount, category, date, description, editing, item?.id,image, onAddTransaction, onUpdateTransaction, showModal, type, User?.id]);
 
 
     const handleCategoryChange = (category: string) => {
@@ -138,6 +166,15 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, on
                 onChangeText={setDescription}
                 style={styles.input}
             />
+            <Button
+                title={image ? "Change Image" : "Add Image"}
+                onPress={pickImage}
+            />
+            {image && (
+                <View style={{ alignItems: 'center', marginTop: 10 }}>
+                    <Image source={{ uri: `data:image/jpeg;base64,${image}` }} style={{ width: 100, height: 100 }} />
+                </View>
+            )}
             <View style={styles.typeButtons}>
                 <Button title="Income" onPress={() => setType('INCOME')} color={type === 'INCOME' ? 'green' : 'gray'} />
                 <Button title="Expense" onPress={() => setType('EXPENSE')} color={type === 'EXPENSE' ? 'red' : 'gray'} />

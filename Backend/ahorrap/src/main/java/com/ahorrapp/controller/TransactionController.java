@@ -8,6 +8,7 @@ import com.ahorrapp.util.mapperDTOModel;
 
 import jakarta.validation.Valid;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +46,12 @@ public class TransactionController {
     @PutMapping("/update")
     public ResponseEntity<Map<String, Object>> updateTransaction(
             @Valid @RequestBody TransactionDTO transactionRequest) {
-        TransactionDTO transaction = mapperDTOModel.mapToResponseDTO(transactionService.updateTransaction(transactionRequest, getUser()));
-        return ResponseEntity.ok(Map.of("message", "Transaction updated successfully", "transaction", transaction));
+        try {
+            TransactionDTO transaction = mapperDTOModel.mapToResponseDTO(transactionService.updateTransaction(transactionRequest, getUser()));
+            return ResponseEntity.ok(Map.of("message", "Transaction updated successfully", "transaction", transaction));
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(Map.of("message", "An error occurred while updating the transaction"));
+        }
     }
 
     @GetMapping("/mine")
