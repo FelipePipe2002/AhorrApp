@@ -11,21 +11,11 @@ class AppStore {
     private listeners: (() => void)[] = [];
     isAuthenticated: boolean | null = null;
     biometricEnabled: boolean | null = false;
+    selectedScreen: 'Transactions' | 'Statistics' | 'Category Manager' = 'Transactions';
     user: User | null = null;
     transactions: Transaction[] = [];
     categories: string[] = [];
     loading = true;
-
-
-    async checkBiometricEnabled() {
-        try {
-            const biometricEnabled = await AsyncStorage.getItem('biometricEnabled');
-            this.biometricEnabled = biometricEnabled === 'true';
-        } catch (error) {
-            console.error('Error al obtener el estado de la biometría:', error);
-        }
-    }
-
 
     subscribe(listener: () => void) {
         this.listeners.push(listener);
@@ -47,6 +37,15 @@ class AppStore {
             AppStore.instance = new AppStore();
         }
         return AppStore.instance;
+    }
+
+    async checkBiometricEnabled() {
+        try {
+            const biometricEnabled = await AsyncStorage.getItem('biometricEnabled');
+            this.biometricEnabled = biometricEnabled === 'true';
+        } catch (error) {
+            console.error('Error al obtener el estado de la biometría:', error);
+        }
     }
 
     private async handleBiometricAuth() {
@@ -100,7 +99,6 @@ class AppStore {
             this.loading = true;
             this.notify();
             try {
-                // Verificar el token
                 const valid = await authService.verifyToken();
                 await this.checkBiometricEnabled();
                 if (valid) {
@@ -137,7 +135,7 @@ class AppStore {
     async reloadData() {
         try {
             this.loading = true;
-            this.notify(); // 🔴 Asegurarse de que esto se ejecuta
+            this.notify();
 
             const [transactionsData, categoriesData] = await Promise.all([
                 transactionService.getTransactionsByUser(),
@@ -151,7 +149,7 @@ class AppStore {
             console.error('Error al recargar los datos:', error);
         } finally {
             this.loading = false;
-            this.notify(); // 🔴 Asegurarse de que esto se ejecuta después de actualizar datos
+            this.notify(); 
         }
     }
 
@@ -198,6 +196,11 @@ class AppStore {
     logout() {
         this.isAuthenticated = false;
         AsyncStorage.clear();
+        this.notify();
+    }
+
+    selectedScreenChange(screen: 'Transactions' | 'Statistics' | 'Category Manager') {
+        this.selectedScreen = screen;
         this.notify();
     }
     private sortDates(a: Transaction, b: Transaction) {

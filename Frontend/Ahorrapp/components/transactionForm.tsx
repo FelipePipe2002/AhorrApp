@@ -7,7 +7,7 @@ import DynamicCategorySelector from './DynamicCategorySelector';
 import { Transaction } from '@/models/transaction';
 import transactionService from '@/services/transactionService';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import appStore from '@/utils/appStore';
+import appStore from '@/services/appStore';
 
 interface TransactionProps {
     item?: Transaction;

@@ -30,7 +30,13 @@ const transactionService = {
         const api = await createApiInstance();
         const response = await api.get('/transactions/categories');
         return response.data;
-    }
+    },
+
+    changeCategoriesTo: async (newCategory: string, oldCategories: string[]) => {
+        const api = await createApiInstance();
+        const response = await api.post('/transactions/change-categories', { newCategory, oldCategories });
+        return response.data;
+    },
 };
 
 export default transactionService;

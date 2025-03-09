@@ -67,6 +67,21 @@ public class TransactionController {
         return ResponseEntity.ok(Map.of("categories", transactionService.getCategories(getUserId())));
     }
 
+    @PostMapping("/change-categories")
+    public ResponseEntity<String> changeCategories(@RequestBody Map<String, Object> payload) {
+        String newCategory = (String) payload.get("newCategory");
+        @SuppressWarnings("unchecked")
+        List<String> oldCategories = (List<String>) payload.get("oldCategories");
+
+        if (newCategory == null || oldCategories == null || oldCategories.isEmpty()) {
+            return ResponseEntity.badRequest().body("Invalid request data");
+        }
+
+        transactionService.changeCategories(getUser().getId(),newCategory, oldCategories);
+
+        return ResponseEntity.ok("Categories updated successfully");
+    }
+    
     private Long getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();

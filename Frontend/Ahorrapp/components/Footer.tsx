@@ -2,25 +2,22 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import GlobalText from './GlobalText';
 import colors from '@/utils/colors';
+import appStore from '@/services/appStore';
 
-interface FooterProps {
-  onSelect: (screen: 'transactions' | 'statistics') => void;
-  selectedScreen: 'transactions' | 'statistics' | 'loading';
-}
 
-const Footer: React.FC<FooterProps> = ({ onSelect, selectedScreen }) => {
+const Footer: React.FC = () => {
   return (
     <View style={styles.footerContainer}>
       <TouchableOpacity
         style={[styles.button]}
-        onPress={() => onSelect('transactions')}
+        onPress={() => appStore.selectedScreenChange('Transactions')}
       >
         <GlobalText style={styles.icon}>💰</GlobalText>
         <GlobalText style={styles.label}>Transactions</GlobalText>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button]}
-        onPress={() => onSelect('statistics')}
+        onPress={() => appStore.selectedScreenChange('Statistics')}
       >
         <GlobalText style={styles.icon}>📊</GlobalText>
         <GlobalText style={styles.label}>Statistics</GlobalText>
@@ -33,15 +30,12 @@ const styles = StyleSheet.create({
   footerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
     backgroundColor: colors.darkest,
-    borderTopWidth: 1,
-    borderColor: colors.component,
-    paddingVertical: 10,
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    padding: 5,
   },
   button: {
     alignItems: 'center',

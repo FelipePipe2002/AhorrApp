@@ -133,16 +133,22 @@ public class TransactionService {
             return null;
         }
 
-        // Decodificar Base64
-        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+        System.out.println(base64Image);
+
         String directoryPath = "./ahorrapp-images/";
         Files.createDirectories(Paths.get(directoryPath));
 
         // Guardar archivo
-        String filename = String.format("image-%d-%d.jpg", userId, transactionId);
+        String filename = String.format("image-%d-%d.txt", userId, transactionId);
         Path imagePath = Paths.get(directoryPath + filename);
-        Files.write(imagePath, imageBytes);
+        Files.writeString(imagePath, base64Image);
 
-        return filename; // Solo guardamos el nombre del archivo en la BD
+        return filename;
     }
+
+    public void changeCategories(Long id, String newCategory, List<String> oldCategories) {
+        transactionRepository.changeCategories(id, newCategory, oldCategories);
+    }
+
+
 }

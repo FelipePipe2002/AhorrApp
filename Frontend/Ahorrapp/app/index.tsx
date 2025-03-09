@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, StatusBar, Platform, Alert } from 'react-native';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import Transactions from './transactions';
-import Statistics from './statistics';
+import Transactions from './Screens/transactions';
+import Statistics from './Screens/statistics';
+import Loading from './Screens/loading';
+import CategoryManager from './Screens/categoryManager';
 import Login from './login';
-import Loading from './loading';
 import colors from '@/utils/colors';
-import appStore from '@/utils/appStore';
+import appStore from '@/services/appStore';
 
 export default function Home() {
-  const [selectedScreen, setSelectedScreen] = useState<'transactions' | 'statistics'>('transactions');
   const [, setForceUpdate] = useState(0);
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <Header
-        title={selectedScreen === 'transactions' ? 'Transactions' : 'Statistics'}
+        title={appStore.selectedScreen}
       />
       <StatusBar
         backgroundColor={colors.background}
@@ -39,13 +39,15 @@ export default function Home() {
       <View style={styles.content}>
         {appStore.loading ? (
           <Loading />
-        ) : selectedScreen === 'transactions' ? (
+        ) : appStore.selectedScreen === 'Transactions' ? (
           <Transactions/>
-        ) : selectedScreen === 'statistics'? (
+        ) : appStore.selectedScreen === 'Statistics'? (
           <Statistics/>
+        ) : appStore.selectedScreen === 'Category Manager'? (
+          <CategoryManager/>
         ) : null}
       </View>
-      <Footer onSelect={setSelectedScreen} selectedScreen={selectedScreen} />
+      <Footer/>
     </View>
   );
 }

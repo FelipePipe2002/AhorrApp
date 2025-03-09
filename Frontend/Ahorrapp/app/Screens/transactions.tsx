@@ -6,7 +6,7 @@ import TransactionComponent from '@/components/transactionComponent';
 import TransactionForm from '@/components/transactionForm';
 import colors from '@/utils/colors';
 import DynamicCategorySelector from '@/components/DynamicCategorySelector';
-import appStore from '@/utils/appStore';
+import appStore from '@/services/appStore';
 
 
 export default function Transactions() {

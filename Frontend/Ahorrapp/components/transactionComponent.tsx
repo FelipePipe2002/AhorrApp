@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Keyboard, Modal, StyleSheet, TouchableWithoutFeedback, View, Image, Alert } from 'react-native';
 import GlobalText from './GlobalText';
 import { formatNumber, formatDate } from '@/services/functionalMehods';
@@ -11,7 +11,7 @@ import CommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '@/utils/colors';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-import appStore from '@/utils/appStore';
+import appStore from '@/services/appStore';
 
 interface TransactionProps {
     item: Transaction;
@@ -88,7 +88,7 @@ const TransactionComponent: React.FC<TransactionProps> = ({ item}) => {
             appStore.updateTransaction(data.transaction);
         }
     };
-
+    
     return (
         <View style={[styles.container]}>
             <View style={styles.iconContainer}>

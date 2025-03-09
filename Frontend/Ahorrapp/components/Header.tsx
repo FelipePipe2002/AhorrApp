@@ -4,7 +4,7 @@ import Modal from 'react-native-modal';
 import GlobalText from './GlobalText';
 import colors from '@/utils/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import appStore from '@/utils/appStore';
+import appStore from '@/services/appStore';
 import authService from '@/services/authService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -76,7 +76,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
           </TouchableOpacity>
 
           {/* Modificar Categorías */}
-          <TouchableOpacity onPress={() => Alert.alert('Modificar categorías')}>
+          <TouchableOpacity onPress={() => { appStore.selectedScreenChange('Category Manager'); setShowModal(false); }}>
             <View style={styles.button}>
               <Icon name="category" size={24} style={styles.icon} />
               <GlobalText style={styles.buttonText}>Modificar Categorías</GlobalText>

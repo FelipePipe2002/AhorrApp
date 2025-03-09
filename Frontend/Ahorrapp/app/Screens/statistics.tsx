@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import GlobalText from '@/components/GlobalText';
 import { formatNumber } from '@/services/functionalMehods';
-import appStore from '@/utils/appStore';
+import appStore from '@/services/appStore';
 
 export default function Statistics() {
   // Calculate totals
