@@ -1,22 +1,16 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import GlobalText from '@/components/GlobalText';
-import { User } from '@/models/user';
-import { Transaction } from '@/models/transaction';
 import { formatNumber } from '@/services/functionalMehods';
+import appStore from '@/utils/appStore';
 
-type TransactionsProps = {
-  transactions: Transaction[];
-  user: User;
-};
-
-export default function Statistics({ transactions, user }: TransactionsProps) {
+export default function Statistics() {
   // Calculate totals
-  const totalIncome = transactions
+  const totalIncome = appStore.transactions
     .filter((t) => t.type === 'INCOME')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalExpenses = transactions
+  const totalExpenses = appStore.transactions
     .filter((t) => t.type === 'EXPENSE')
     .reduce((sum, t) => sum + t.amount, 0);
 

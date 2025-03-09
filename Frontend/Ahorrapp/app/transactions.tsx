@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, Button, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Transaction } from '@/models/transaction';
 import GlobalText from '@/components/GlobalText';
-import { User } from '@/models/user';
 import { formatNumber } from '@/services/functionalMehods';
 import TransactionComponent from '@/components/transactionComponent';
 import TransactionForm from '@/components/transactionForm';
 import colors from '@/utils/colors';
-import transactionService from '@/services/transactionService';
 import DynamicCategorySelector from '@/components/DynamicCategorySelector';
+import appStore from '@/utils/appStore';
 
-type TransactionsProps = {
-  transactions: Transaction[];
-  user: User;
-  onAddTransaction?: (transaction: Transaction) => void;
-  onDeleteTransaction?: (id: number) => void;
-  onUpdateTransaction?: (transaction: Transaction) => void;
-};
 
-export default function Transactions({ transactions, user, onAddTransaction = () => { }, onDeleteTransaction = () => { }, onUpdateTransaction = () => { } }: TransactionsProps) {
+export default function Transactions() {
   // Summary
   const [balance, setbalance] = useState<number>(0);
   // Pagination
@@ -28,35 +19,21 @@ export default function Transactions({ transactions, user, onAddTransaction = ()
   // Transaction Add
   const [showModal, setShowModal] = useState(false);
 
-  const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
   const [category, setCategory] = useState<string>('');
-
-  const fetchCategories = async () => {
-    try {
-      const categories = await transactionService.getCategories();
-      setFetchedCategories(categories.categories);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   const handleCategoryChange = (category: string) => {
     setCategory(category);
-    if(fetchedCategories.includes(category) || category==='')  setCurrentPage(1);
+    if(appStore.categories.includes(category) || category==='')  setCurrentPage(1);
   };
 
-  const filteredTransactions = category && fetchedCategories.includes(category)
-    ? transactions.filter((transaction) => transaction.category === category)
-    : transactions;
+  const filteredTransactions = category && appStore.categories.includes(category)
+    ? appStore.transactions.filter((transaction) => transaction.category === category)
+    : appStore.transactions;
 
 
   // Summary
   useEffect(() => {
-    setbalance(transactions.reduce((acc, transaction) => {
+    setbalance(appStore.transactions.reduce((acc, transaction) => {
       if (transaction.type === 'INCOME') {
         return acc + transaction.amount;
       } else if (transaction.type === 'EXPENSE') {
@@ -64,7 +41,7 @@ export default function Transactions({ transactions, user, onAddTransaction = ()
       }
       return acc;
     }, 0));
-  }, [transactions]);
+  }, [appStore.transactions]);
 
   // Pagination
   const totalPages = Math.ceil(filteredTransactions.length / pageSize);
@@ -81,26 +58,12 @@ export default function Transactions({ transactions, user, onAddTransaction = ()
       setCurrentPage((prev) => prev - 1);
     }
   };
-
-  const handleDeleteTransaction = async (id: number) => {
-    onDeleteTransaction(id);
-    fetchCategories();
-  }
-
-  const handleUpdateTransaction = async (transaction: Transaction) => {
-    onUpdateTransaction(transaction);
-    fetchCategories();
-  }
-
-  const handleAddTransaction = async (transaction: Transaction) => {
-    onAddTransaction(transaction);
-    fetchCategories();
-  }
+  
 
   return (
     <View style={styles.container}>
       <View style={styles.summaryCard}>
-        <GlobalText style={styles.title}>Hello, {user.name || 'User'}!</GlobalText>
+        <GlobalText style={styles.title}>Hello, {appStore.user?.name || 'User'}!</GlobalText>
         <GlobalText> Total Balance: ${formatNumber(balance)}</GlobalText>
         <GlobalText />
         <Button title="Add Transaction" onPress={() => setShowModal(true)} />
@@ -112,13 +75,13 @@ export default function Transactions({ transactions, user, onAddTransaction = ()
             Keyboard.dismiss();
           }}
         >
-          <TransactionForm onAddTransaction={handleAddTransaction} showModal={setShowModal} User={user} />
+          <TransactionForm showModal={setShowModal}/>
         </TouchableWithoutFeedback>
       </Modal>
 
       <DynamicCategorySelector
         selectedCategory={category}
-        categories={fetchedCategories}
+        categories={appStore.categories}
         onCategoryChange={handleCategoryChange}
         style={styles.input}
       />
@@ -127,7 +90,7 @@ export default function Transactions({ transactions, user, onAddTransaction = ()
         data={currentTransactions}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <TransactionComponent item={item} onDelete={handleDeleteTransaction} onAdd={handleAddTransaction} onUpdate={handleUpdateTransaction} User={user} />
+          <TransactionComponent item={item}/>
         )}
       />
       <View style={styles.paginationButtons}>

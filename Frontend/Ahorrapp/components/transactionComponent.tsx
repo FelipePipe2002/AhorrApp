@@ -5,32 +5,27 @@ import GlobalText from './GlobalText';
 import { formatNumber, formatDate } from '@/services/functionalMehods';
 import TransactionForm from './transactionForm';
 import { Transaction } from '@/models/transaction';
-import { User } from '@/models/user';
 import transactionService from '@/services/transactionService';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import CommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '@/utils/colors';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import appStore from '@/utils/appStore';
 
 interface TransactionProps {
     item: Transaction;
-    User?: User;
-    onDelete: (id: number) => void;
-    onAdd: (transaction: Transaction) => void;
-    onUpdate: (transaction: Transaction) => void;
 }
 
-const TransactionComponent: React.FC<TransactionProps> = ({ item, User, onDelete, onAdd, onUpdate }) => {
+const TransactionComponent: React.FC<TransactionProps> = ({ item}) => {
     const [showModal, setShowModal] = React.useState(false);
     const [showImageModal, setShowImageModal] = React.useState(false);
-    const [image, setImage] = React.useState<string | null>(null);
 
     const handleDeleteTransaction = async (id: number) => {
         try {
             await transactionService.deleteTransaction(id);
-            onDelete?.(id);
+            appStore.deleteTransaction(id);
+
         } catch (error) {
             console.error('Error deleting transaction:', error);
         }
@@ -43,29 +38,54 @@ const TransactionComponent: React.FC<TransactionProps> = ({ item, User, onDelete
     }
 
     const pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 0.7, // Reduce la calidad para comprimir
-            base64: true,
-        });
+        const options = [
+            { text: "Tomar foto", action: "camera" },
+            { text: "Elegir de la galería", action: "library" },
+            { text: "Cancelar", action: "cancel" }
+        ];
+    
+        Alert.alert("Seleccionar imagen", "¿Qué deseas hacer?", [
+            {
+                text: options[0].text,
+                onPress: async () => {
+                    const result = await ImagePicker.launchCameraAsync({
+                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                        allowsEditing: true,
+                        quality: 0.7,
+                        base64: true,
+                    });
+    
+                    handleImageResult(result);
+                }
+            },
+            {
+                text: options[1].text,
+                onPress: async () => {
+                    const result = await ImagePicker.launchImageLibraryAsync({
+                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                        allowsEditing: true,
+                        quality: 0.7,
+                        base64: true,
+                    });
+    
+                    handleImageResult(result);
+                }
+            },
+            { text: options[2].text, style: "cancel" }
+        ]);
+    };
 
+    const handleImageResult = async (result: ImagePicker.ImagePickerResult) => {
         if (!result.canceled) {
             const compressed = await ImageManipulator.manipulateAsync(
                 result.assets[0].uri,
-                [{ resize: { width: 500 } }], // Reducir tamaño a 500px de ancho
+                [{ resize: { width: 500 } }],
                 { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
             );
-
-            // Guardar la imagen comprimida en base64
-            if (compressed.base64) {
-                setImage(compressed.base64);
-            }
-
-            // Actualizar la imagen en la transacción
+    
             const updatedTransaction: Transaction = { ...item, image: compressed.base64 };
             const data = await transactionService.updateTransaction(updatedTransaction);
-            onUpdate(data.transaction);
+            appStore.updateTransaction(data.transaction);
         }
     };
 
@@ -119,7 +139,7 @@ const TransactionComponent: React.FC<TransactionProps> = ({ item, User, onDelete
                         Keyboard.dismiss();
                     }}
                 >
-                    <TransactionForm showModal={setShowModal} onAddTransaction={onAdd} onUpdateTransaction={onUpdate} User={User} item={item} />
+                    <TransactionForm showModal={setShowModal} item={item} />
                 </TouchableWithoutFeedback>
             </Modal>
 
@@ -150,7 +170,7 @@ const TransactionComponent: React.FC<TransactionProps> = ({ item, User, onDelete
                                         onPress: async () => {
                                             const updatedTransaction: Transaction = { ...item, image: null };
                                             const data = await transactionService.updateTransaction(updatedTransaction);
-                                            onUpdate(data.transaction);
+                                            appStore.updateTransaction(data.transaction);
                                             setShowImageModal(false);
                                         },
                                     },

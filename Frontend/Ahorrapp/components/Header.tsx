@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
 import Modal from 'react-native-modal';
 import GlobalText from './GlobalText';
 import colors from '@/utils/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import appStore from '@/utils/appStore';
+import authService from '@/services/authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface HeaderProps {
   title: string;
-  onLogout?: () => void;
-  onReload?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, onLogout, onReload }) => {
+const Header: React.FC<HeaderProps> = ({ title }) => {
   const [showModal, setShowModal] = useState(false);
   const [biometricEnabled, setBiometricEnabled] = useState(false);
-
 
   const UserConfig = () => {
     if (!showModal) {
@@ -24,9 +24,24 @@ const Header: React.FC<HeaderProps> = ({ title, onLogout, onReload }) => {
     }
   };
 
-  const toggleModal = () => setShowModal(!showModal);
-  const toggleBiometric = () => setBiometricEnabled(!biometricEnabled);
+  useEffect(() => {
+    appStore.checkBiometricEnabled().then(() => {
+      return setBiometricEnabled(appStore.biometricEnabled ?? false);
+    });
+  }, []);
 
+  const toggleBiometric = async () => {
+    setBiometricEnabled(!biometricEnabled);
+    if (await appStore.forceBiometricAuth()) {
+      await AsyncStorage.setItem('biometricEnabled', (!biometricEnabled).toString());
+    }
+
+  };
+
+  const handleLogout = async () => {
+    await authService.logout();
+    appStore.logout();
+  };
 
   return (
     <View style={styles.headerContainer}>
@@ -52,13 +67,13 @@ const Header: React.FC<HeaderProps> = ({ title, onLogout, onReload }) => {
       >
         <View style={styles.panel}>
           {/* Activar/Desactivar Biometría */}
-            <TouchableOpacity onPress={toggleBiometric}>
-              <View style={styles.button}>
-                <Icon name="fingerprint" size={24} style={styles.icon} />
-                <GlobalText style={styles.buttonText}>Usar Biometría</GlobalText>
-                <Switch value={biometricEnabled} onValueChange={toggleBiometric} />
-              </View>
-            </TouchableOpacity>
+          <TouchableOpacity onPress={toggleBiometric}>
+            <View style={styles.button}>
+              <Icon name="fingerprint" size={24} style={styles.icon} />
+              <GlobalText style={styles.buttonText}>Usar Biometría</GlobalText>
+              <Switch value={biometricEnabled} onValueChange={toggleBiometric} />
+            </View>
+          </TouchableOpacity>
 
           {/* Modificar Categorías */}
           <TouchableOpacity onPress={() => Alert.alert('Modificar categorías')}>
@@ -85,12 +100,12 @@ const Header: React.FC<HeaderProps> = ({ title, onLogout, onReload }) => {
           </TouchableOpacity>
         </View>
       </Modal>
-      
+
       {/* Title */}
       <GlobalText style={styles.title}>{title}</GlobalText>
 
       <View style={styles.iconsLeft}>
-        <TouchableOpacity onPress={onReload}>
+        <TouchableOpacity onPress={appStore.reload}>
           <Icon
             name="autorenew"
             size={24}
@@ -98,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({ title, onLogout, onReload }) => {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={onLogout}>
+        <TouchableOpacity onPress={handleLogout}>
           <Icon
             name="logout"
             size={24}

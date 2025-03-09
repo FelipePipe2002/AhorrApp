@@ -6,18 +6,15 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import DynamicCategorySelector from './DynamicCategorySelector';
 import { Transaction } from '@/models/transaction';
 import transactionService from '@/services/transactionService';
-import { User } from '@/models/user';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import appStore from '@/utils/appStore';
 
 interface TransactionProps {
     item?: Transaction;
-    User?: User;
     showModal: (show: boolean) => void;
-    onAddTransaction?: (transaction: Transaction) => void;
-    onUpdateTransaction?: (transaction: Transaction) => void;
 }
 
-const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, onAddTransaction, onUpdateTransaction }) => {
+const TransactionForm: React.FC<TransactionProps> = ({ item, showModal}) => {
 
     const parseDate = (dateString: string) => {
         const [datePart, timePart] = dateString.split(" ");
@@ -31,26 +28,54 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, on
     };
 
     const pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 0.7, // Reduce la calidad para comprimir
-            base64: true,
-        });
+        const options = [
+            { text: "Tomar foto", action: "camera" },
+            { text: "Elegir de la galería", action: "library" },
+            { text: "Cancelar", action: "cancel" }
+        ];
 
+        Alert.alert("Seleccionar imagen", "¿Qué deseas hacer?", [
+            {
+                text: options[0].text,
+                onPress: async () => {
+                    const result = await ImagePicker.launchCameraAsync({
+                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                        allowsEditing: true,
+                        quality: 0.7,
+                        base64: true,
+                    });
+
+                    handleImageResult(result);
+                }
+            },
+            {
+                text: options[1].text,
+                onPress: async () => {
+                    const result = await ImagePicker.launchImageLibraryAsync({
+                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                        allowsEditing: true,
+                        quality: 0.7,
+                        base64: true,
+                    });
+
+                    handleImageResult(result);
+                }
+            },
+            { text: options[2].text, style: "cancel" }
+        ]);
+    };
+
+    const handleImageResult = async (result: ImagePicker.ImagePickerResult) => {
         if (!result.canceled) {
             const compressed = await ImageManipulator.manipulateAsync(
                 result.assets[0].uri,
-                [{ resize: { width: 500 } }], // Reducir tamaño a 500px de ancho
+                [{ resize: { width: 500 } }],
                 { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
             );
-
-            // Guardar la imagen comprimida en base64
+    
             if (compressed.base64) {
                 setImage(compressed.base64);
             }
-
-            console.log('Image selected:', compressed);
         }
     };
 
@@ -96,24 +121,24 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, on
             category,
             date: date.toISOString().replace('T', ' ').substring(0, 19),
             description,
-            image,  
-            userId: User?.id || 0,
+            image,
+            userId: appStore.user?.id || 0,
         };
 
         try {
             let data;
             if (editing) {
                 data = await transactionService.updateTransaction(transaction);
-                onUpdateTransaction?.(data.transaction);
+                appStore.updateTransaction(data.transaction);
             } else {
                 data = await transactionService.addTransaction(transaction);
-                onAddTransaction?.(data.transaction);
+                appStore.addTransaction(data.transaction);
             }
             showModal(false);
         } catch (error) {
             console.error(editing ? 'Error updating transaction:' : 'Error adding transaction:', error);
         }
-    }, [amount, category, date, description, editing, item?.id,image, onAddTransaction, onUpdateTransaction, showModal, type, User?.id]);
+    }, [amount, category, date, description, editing, item?.id, image, showModal, type]);
 
 
     const handleCategoryChange = (category: string) => {
@@ -186,7 +211,7 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, User, showModal, on
                 />
                 <Button
                     title="Cancel"
-                    onPress={() => {showModal(false); }}
+                    onPress={() => { showModal(false); }}
                     color="red"
                 />
             </View>
