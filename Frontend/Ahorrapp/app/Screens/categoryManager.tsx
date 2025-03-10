@@ -19,7 +19,7 @@ export default function CategoryManager() {
       return;
     }
 
-    setShowMergeModal(true); // Mostrar modal para elegir nombre
+    setShowMergeModal(true);
   };
 
   const confirmMerge = async () => {

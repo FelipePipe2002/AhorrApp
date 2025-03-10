@@ -4,7 +4,7 @@ import authService from "@/services/authService";
 import transactionService from "@/services/transactionService";
 import { Alert } from "react-native";
 import ReactNativeBiometrics from "react-native-biometrics";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { clearStorage, getData } from "./StorageManager";
 
 class AppStore {
     private static instance: AppStore;
@@ -41,7 +41,7 @@ class AppStore {
 
     async checkBiometricEnabled() {
         try {
-            const biometricEnabled = await AsyncStorage.getItem('biometricEnabled');
+            const biometricEnabled = await getData('biometricEnabled');
             this.biometricEnabled = biometricEnabled === 'true';
         } catch (error) {
             console.error('Error al obtener el estado de la biometría:', error);
@@ -88,7 +88,7 @@ class AppStore {
         } catch (error) {
             console.error('Error en la autenticación biométrica:', error);
             this.isAuthenticated = false;
-            AsyncStorage.clear();
+            clearStorage();
             this.notify();
             return false;
         }
@@ -195,7 +195,7 @@ class AppStore {
 
     logout() {
         this.isAuthenticated = false;
-        AsyncStorage.clear();
+        clearStorage();
         this.notify();
     }
 

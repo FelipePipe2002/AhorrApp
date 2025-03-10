@@ -6,7 +6,7 @@ import colors from '@/utils/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import appStore from '@/services/appStore';
 import authService from '@/services/authService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {saveData } from '@/services/StorageManager';
 
 interface HeaderProps {
   title: string;
@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
   const toggleBiometric = async () => {
     setBiometricEnabled(!biometricEnabled);
     if (await appStore.forceBiometricAuth()) {
-      await AsyncStorage.setItem('biometricEnabled', (!biometricEnabled).toString());
+      await saveData('biometricEnabled', (!biometricEnabled).toString());
     }
 
   };

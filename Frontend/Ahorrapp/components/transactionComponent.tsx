@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Button, Keyboard, Modal, StyleSheet, TouchableWithoutFeedback, View, Image, Alert } from 'react-native';
 import GlobalText from './GlobalText';
-import { formatNumber, formatDate } from '@/services/functionalMehods';
+import { formatNumber, formatDate } from '@/services/generalMethods';
 import TransactionForm from './transactionForm';
 import { Transaction } from '@/models/transaction';
 import transactionService from '@/services/transactionService';
@@ -29,12 +29,6 @@ const TransactionComponent: React.FC<TransactionProps> = ({ item}) => {
         } catch (error) {
             console.error('Error deleting transaction:', error);
         }
-    }
-
-    const formatDate = (date: string) => {
-        date = date.split(' ')[0];
-        const newDate = date.split('-').reverse().join('/');
-        return newDate;
     }
 
     const pickImage = async () => {

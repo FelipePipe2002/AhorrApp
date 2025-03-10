@@ -9,12 +9,14 @@ const transactionService = {
     },
 
     addTransaction: async (transaction: Transaction) => {
+        transaction.category = transaction.category.toLowerCase();
         const api = await createApiInstance();
         const response = await api.post('/transactions/add', transaction);
         return response.data;
     },
 
     updateTransaction: async (transaction: Transaction) => {
+        transaction.category = transaction.category.toLowerCase();
         const api = await createApiInstance();
         const response = await api.put('/transactions/update', transaction);
         return response.data;
@@ -33,6 +35,8 @@ const transactionService = {
     },
 
     changeCategoriesTo: async (newCategory: string, oldCategories: string[]) => {
+        newCategory = newCategory.toLowerCase();
+        oldCategories = oldCategories.map(category => category.toLowerCase());
         const api = await createApiInstance();
         const response = await api.post('/transactions/change-categories', { newCategory, oldCategories });
         return response.data;

@@ -8,6 +8,7 @@ import { Transaction } from '@/models/transaction';
 import transactionService from '@/services/transactionService';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import appStore from '@/services/appStore';
+import { parseDate } from '@/services/generalMethods';
 
 interface TransactionProps {
     item?: Transaction;
@@ -15,17 +16,6 @@ interface TransactionProps {
 }
 
 const TransactionForm: React.FC<TransactionProps> = ({ item, showModal}) => {
-
-    const parseDate = (dateString: string) => {
-        const [datePart, timePart] = dateString.split(" ");
-        const [year, month, day] = datePart.split("-").map(Number);
-        const [hour, minute] = timePart.split(":").map(Number);
-
-        const parsedDate = new Date(year, month - 1, day, hour, minute, 0);
-        parsedDate.setHours(parsedDate.getHours() - 3);
-
-        return parsedDate;
-    };
 
     const pickImage = async () => {
         const options = [
@@ -86,21 +76,7 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, showModal}) => {
     const [date, setDate] = useState(item?.date ? parseDate(item.date) : new Date(new Date().setHours(new Date().getHours() - 3)));
     const [image, setImage] = useState(item?.image || null);
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [fetchedCategories, setFetchedCategories] = useState<string[]>([]);
     const editing = !!item;
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const categories = await transactionService.getCategories();
-                setFetchedCategories(categories.categories);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-        fetchCategories();
-    }, []);
-
 
     const handleTransaction = useCallback(async () => {
         if (!amount || !category) {
@@ -114,11 +90,12 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, showModal}) => {
             return;
         }
 
+        //TODO: Bug: cuando se carga la fecha se carga con EST y no EST-3
         const transaction: Transaction = {
             id: item?.id || 0,
             amount: parsedAmount,
             type,
-            category,
+            category: category.toLowerCase(),
             date: date.toISOString().replace('T', ' ').substring(0, 19),
             description,
             image,
@@ -159,7 +136,7 @@ const TransactionForm: React.FC<TransactionProps> = ({ item, showModal}) => {
             />
             <DynamicCategorySelector
                 selectedCategory={category}
-                categories={fetchedCategories}
+                categories={appStore.categories}
                 onCategoryChange={handleCategoryChange}
                 style={styles.input}
             />

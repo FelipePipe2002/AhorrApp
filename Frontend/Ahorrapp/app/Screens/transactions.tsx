@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, Button, Modal, TextInput, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import GlobalText from '@/components/GlobalText';
-import { formatNumber } from '@/services/functionalMehods';
+import { formatNumber } from '@/services/generalMethods';
 import TransactionComponent from '@/components/transactionComponent';
 import TransactionForm from '@/components/transactionForm';
 import colors from '@/utils/colors';

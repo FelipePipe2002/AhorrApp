@@ -1,6 +1,6 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
-import { getAuthToken } from './tokenStorage';
 import env from '@/utils/env';
+import { getData } from './StorageManager';
 
 let apiInstance: any = null; // Singleton instance
 
@@ -20,7 +20,7 @@ const createApiInstance = async () => {
 
   apiInstance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
-      const token = await getAuthToken();
+      const token = await getData('authToken');
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
