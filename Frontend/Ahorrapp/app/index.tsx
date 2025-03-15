@@ -9,9 +9,17 @@ import CategoryManager from './Screens/categoryManager';
 import Login from './login';
 import colors from '@/utils/colors';
 import appStore from '@/services/appStore';
+import { checkForUpdate, downloadAndInstallUpdate } from '@/services/updateService';
+import { UpdateModal } from '@/components/UpdateModal';
 
 export default function Home() {
   const [, setForceUpdate] = useState(0);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<{
+    versionName: string;
+    releaseNotes: string;
+    apkUrl: string;
+  } | null>(null);
 
   useEffect(() => {
     const unsubscribe = appStore.subscribe(() => {
@@ -21,6 +29,29 @@ export default function Home() {
     appStore.initialize(); 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const checkUpdate = async () => {
+      const { updateAvailable, versionName, releaseNotes, apkUrl } = await checkForUpdate();
+      if (updateAvailable) {
+        setUpdateInfo({ versionName, releaseNotes, apkUrl });
+        setUpdateModalVisible(true);
+      }
+    };
+
+    checkUpdate();
+  }, []);
+
+  const handleUpdate = () => {
+    if (updateInfo) {
+      downloadAndInstallUpdate(updateInfo.apkUrl);
+      setUpdateModalVisible(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setUpdateModalVisible(false);
+  };
   
   if (!appStore.isAuthenticated) {
     return <Login />;
@@ -47,6 +78,13 @@ export default function Home() {
           <CategoryManager/>
         ) : null}
       </View>
+      <UpdateModal
+        visible={updateModalVisible}
+        versionName={updateInfo?.versionName || ''}
+        releaseNotes={updateInfo?.releaseNotes || ''}
+        onUpdate={handleUpdate}
+        onCancel={handleCancel}
+      />
       <Footer/>
     </View>
   );

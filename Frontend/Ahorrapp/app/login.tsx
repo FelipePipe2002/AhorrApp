@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import authService from '@/services/authService';
@@ -11,12 +11,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const [hello, setHello] = useState('');
-
-  useEffect(() => {
-    getHello();
-  }, []);
-
   const handleLogin = async () => {
     try {
       setEmail(email.toLowerCase());
@@ -27,15 +21,6 @@ export default function Login() {
     }
   };
 
-  const getHello = async () => {
-    try {
-      const response = await authService.getHello();
-      setHello(response.data);
-    } catch (error) {
-      console.log('Error getting hello:', error);
-      setHello((error as any).message);
-    }
-  }
 
   return (
     <View style={styles.container}>
@@ -49,7 +34,6 @@ export default function Login() {
           Register
         </Text>
       </GlobalText>
-      <GlobalText>pepe: {hello}</GlobalText>
       {error ? <GlobalText style={styles.error}>{error}</GlobalText> : null}
     </View>
   );

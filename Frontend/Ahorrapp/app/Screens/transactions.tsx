@@ -63,8 +63,8 @@ export default function Transactions() {
   return (
     <View style={styles.container}>
       <View style={styles.summaryCard}>
-        <GlobalText style={styles.title}>Hello, {appStore.user?.name || 'User'}!</GlobalText>
-        <GlobalText> Total Balance: ${formatNumber(balance)}</GlobalText>
+        <GlobalText style={styles.title}>Hola, {appStore.user?.name || 'User'}!</GlobalText>
+        <GlobalText> Balance Total: ${formatNumber(balance)}</GlobalText>
         <GlobalText />
         <Button title="Add Transaction" onPress={() => setShowModal(true)} />
       </View>
