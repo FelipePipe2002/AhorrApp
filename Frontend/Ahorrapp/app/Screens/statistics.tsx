@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import GlobalText from '@/components/GlobalText';
 import { formatNumber } from '@/services/generalMethods';
-import appStore from '@/services/appStore';
+import appStore from '@/store/app.store';
 
 export default function Statistics() {
   // Calculate totals
@@ -18,9 +18,9 @@ export default function Statistics() {
 
   return (
     <View style={styles.container}>
-      <GlobalText style={styles.title}>Statistics</GlobalText>
-      <GlobalText style={styles.income}>Total Income: ${formatNumber(totalIncome)}</GlobalText>
-      <GlobalText style={styles.expense}>Total Expenses: ${formatNumber(totalExpenses)}</GlobalText>
+      <GlobalText style={styles.title}>Estadisticas</GlobalText>
+      <GlobalText style={styles.income}>Ingresos Totales: ${formatNumber(totalIncome)}</GlobalText>
+      <GlobalText style={styles.expense}>Gastos Totales: ${formatNumber(totalExpenses)}</GlobalText>
       <GlobalText style={styles.balance}>Balance: ${formatNumber(balance)}</GlobalText>
     </View>
   );

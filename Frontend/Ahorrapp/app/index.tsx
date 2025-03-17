@@ -8,8 +8,8 @@ import Loading from './Screens/loading';
 import CategoryManager from './Screens/categoryManager';
 import Login from './login';
 import colors from '@/utils/colors';
-import appStore from '@/services/appStore';
-import { checkForUpdate, downloadAndInstallUpdate } from '@/services/updateService';
+import appStore from '@/store/app.store';
+import { checkForUpdate, downloadAndInstallUpdate } from '@/services/update.service';
 import { UpdateModal } from '@/components/UpdateModal';
 
 export default function Home() {
@@ -21,12 +21,13 @@ export default function Home() {
     apkUrl: string;
   } | null>(null);
 
+  // Subscribe to appStore changes
   useEffect(() => {
     const unsubscribe = appStore.subscribe(() => {
-      setForceUpdate(prev => prev + 1); 
+      setForceUpdate(prev => prev + 1);
     });
 
-    appStore.initialize(); 
+    appStore.initialize();
     return () => unsubscribe();
   }, []);
 
@@ -42,6 +43,22 @@ export default function Home() {
     checkUpdate();
   }, []);
 
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        const serverStatus = await appStore.checkServerStatus();
+        console.log('Server status:', serverStatus);
+
+      }
+      catch (error) {
+        Alert.alert('Error', 'Failed to connect to server');
+      }
+    }
+
+    checkServerStatus();
+  }, []);
+
+
   const handleUpdate = () => {
     if (updateInfo) {
       downloadAndInstallUpdate(updateInfo.apkUrl);
@@ -52,7 +69,7 @@ export default function Home() {
   const handleCancel = () => {
     setUpdateModalVisible(false);
   };
-  
+
   if (!appStore.isAuthenticated) {
     return <Login />;
   }
@@ -71,11 +88,11 @@ export default function Home() {
         {appStore.loading ? (
           <Loading />
         ) : appStore.selectedScreen === 'Transactions' ? (
-          <Transactions/>
-        ) : appStore.selectedScreen === 'Statistics'? (
-          <Statistics/>
-        ) : appStore.selectedScreen === 'Category Manager'? (
-          <CategoryManager/>
+          <Transactions />
+        ) : appStore.selectedScreen === 'Statistics' ? (
+          <Statistics />
+        ) : appStore.selectedScreen === 'Category Manager' ? (
+          <CategoryManager />
         ) : null}
       </View>
       <UpdateModal
@@ -85,7 +102,7 @@ export default function Home() {
         onUpdate={handleUpdate}
         onCancel={handleCancel}
       />
-      <Footer/>
+      <Footer />
     </View>
   );
 }

@@ -1,10 +1,10 @@
 import { Transaction } from "@/models/transaction";
 import { User } from "@/models/user";
-import authService from "@/services/authService";
-import transactionService from "@/services/transactionService";
+import authService from "@/services/auth.service";
+import transactionService from "@/services/transaction.service";
 import { Alert } from "react-native";
 import ReactNativeBiometrics from "react-native-biometrics";
-import { clearStorage, getData } from "./StorageManager";
+import { clearStorage, getData } from "../services/StorageManager.service";
 
 class AppStore {
     private static instance: AppStore;
@@ -149,7 +149,7 @@ class AppStore {
             console.error('Error al recargar los datos:', error);
         } finally {
             this.loading = false;
-            this.notify(); 
+            this.notify();
         }
     }
 
@@ -199,6 +199,10 @@ class AppStore {
         this.notify();
     }
 
+    checkServerStatus() {
+        return authService.getServerStatus();
+    }
+
     selectedScreenChange(screen: 'Transactions' | 'Statistics' | 'Category Manager') {
         this.selectedScreen = screen;
         this.notify();
@@ -208,6 +212,7 @@ class AppStore {
         const [dayB, monthB, yearB] = b.date.split('/').map(Number);
         return new Date(yearB, monthB - 1, dayB).getTime() - new Date(yearA, monthA - 1, dayA).getTime();
     }
+
 }
 
 export default AppStore.getInstance();

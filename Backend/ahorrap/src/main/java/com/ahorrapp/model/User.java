@@ -22,4 +22,7 @@ public class User {
 
     @Column(name = "lastname", nullable = false)
     private String lastname;
+
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken;
 }

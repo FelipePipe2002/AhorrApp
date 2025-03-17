@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import authService from '@/services/authService';
+import authService from '@/services/auth.service';
 import colors from '@/utils/colors';
 import GlobalText from '@/components/GlobalText';
 

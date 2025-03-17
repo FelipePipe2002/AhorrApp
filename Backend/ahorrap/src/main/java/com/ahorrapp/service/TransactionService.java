@@ -6,8 +6,6 @@ import com.ahorrapp.model.User;
 import com.ahorrapp.repository.TransactionRepository;
 import com.ahorrapp.repository.UserRepository;
 
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

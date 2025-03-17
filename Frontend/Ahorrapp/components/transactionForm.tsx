@@ -5,9 +5,9 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DynamicCategorySelector from './DynamicCategorySelector';
 import { Transaction } from '@/models/transaction';
-import transactionService from '@/services/transactionService';
+import transactionService from '@/services/transaction.service';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import appStore from '@/services/appStore';
+import appStore from '@/store/app.store';
 import { parseDate } from '@/services/generalMethods';
 
 interface TransactionProps {

@@ -1,5 +1,5 @@
 import { Transaction } from '@/models/transaction';
-import createApiInstance from './api';
+import createApiInstance from './api.service';
 
 const transactionService = {
     getTransactionsByUser: async () => {

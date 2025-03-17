@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
 import GlobalText from '@/components/GlobalText';
-import appStore from '@/services/appStore';
+import appStore from '@/store/app.store';
 import colors from '@/utils/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import transactionService from '@/services/transactionService';
+import transactionService from '@/services/transaction.service';
 
 export default function CategoryManager() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);

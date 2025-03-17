@@ -4,9 +4,9 @@ import Modal from 'react-native-modal';
 import GlobalText from './GlobalText';
 import colors from '@/utils/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import appStore from '@/services/appStore';
-import authService from '@/services/authService';
-import {saveData } from '@/services/StorageManager';
+import appStore from '@/store/app.store';
+import authService from '@/services/auth.service';
+import {saveData } from '@/services/StorageManager.service';
 
 interface HeaderProps {
   title: string;

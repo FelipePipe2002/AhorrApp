@@ -12,7 +12,9 @@ import java.util.Date;
 public class JwtUtil {
     private static final Dotenv dotenv = Dotenv.load();
     private final String SECRET_KEY = loadSecretKey();
-    private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
+    private final long ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000; // 15 minutos
+    private final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7 días
+
 
     private String loadSecretKey() {
         String secret = dotenv.get("JWT_SECRET_KEY");
@@ -26,11 +28,20 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public String generateToken(String email) {
+    public String generateAccessToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                //.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

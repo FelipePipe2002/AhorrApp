@@ -6,7 +6,7 @@ import TransactionComponent from '@/components/transactionComponent';
 import TransactionForm from '@/components/transactionForm';
 import colors from '@/utils/colors';
 import DynamicCategorySelector from '@/components/DynamicCategorySelector';
-import appStore from '@/services/appStore';
+import appStore from '@/store/app.store';
 
 
 export default function Transactions() {
@@ -66,7 +66,7 @@ export default function Transactions() {
         <GlobalText style={styles.title}>Hola, {appStore.user?.name || 'User'}!</GlobalText>
         <GlobalText> Balance Total: ${formatNumber(balance)}</GlobalText>
         <GlobalText />
-        <Button title="Add Transaction" onPress={() => setShowModal(true)} />
+        <Button title="Agregar Transaccion" onPress={() => setShowModal(true)} />
       </View>
       <Modal visible={showModal} animationType="slide" transparent={true}>
         <TouchableWithoutFeedback
@@ -94,9 +94,9 @@ export default function Transactions() {
         )}
       />
       <View style={styles.paginationButtons}>
-        <Button title="Previous" onPress={handlePreviousPage} disabled={currentPage === 1} />
+        <Button title="Anterior" onPress={handlePreviousPage} disabled={currentPage === 1} />
         <GlobalText style={styles.paginationText}>{currentPage} / {totalPages}</GlobalText>
-        <Button title="Next" onPress={handleNextPage} disabled={currentPage === totalPages} />
+        <Button title="Siguiente" onPress={handleNextPage} disabled={currentPage === totalPages} />
       </View>
     </View>
   );

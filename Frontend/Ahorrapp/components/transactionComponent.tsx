@@ -5,13 +5,13 @@ import GlobalText from './GlobalText';
 import { formatNumber, formatDate } from '@/services/generalMethods';
 import TransactionForm from './transactionForm';
 import { Transaction } from '@/models/transaction';
-import transactionService from '@/services/transactionService';
+import transactionService from '@/services/transaction.service';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import CommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import colors from '@/utils/colors';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-import appStore from '@/services/appStore';
+import appStore from '@/store/app.store';
 
 interface TransactionProps {
     item: Transaction;

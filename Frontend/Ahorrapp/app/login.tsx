@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import authService from '@/services/authService';
+import authService from '@/services/auth.service';
 import GlobalText from '@/components/GlobalText';
 import colors from '@/utils/colors';
+import DeviceInfo from 'react-native-device-info';
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [appVersion, setAppVersion] = useState('');
 
   const handleLogin = async () => {
     try {
@@ -20,6 +22,14 @@ export default function Login() {
       setError('Invalid email or password');
     }
   };
+
+  useEffect(() => {
+    const getAppVersion = async () => {
+      const version = await DeviceInfo.getVersion();
+      setAppVersion(version);
+    };
+    getAppVersion();
+  })
 
 
   return (
@@ -35,6 +45,7 @@ export default function Login() {
         </Text>
       </GlobalText>
       {error ? <GlobalText style={styles.error}>{error}</GlobalText> : null}
+      <GlobalText style={{ marginTop: 10 }}>App version: {appVersion}</GlobalText>
     </View>
   );
 }

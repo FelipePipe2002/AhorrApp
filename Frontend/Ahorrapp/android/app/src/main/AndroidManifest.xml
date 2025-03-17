@@ -53,5 +53,13 @@
         android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/file_paths" />
     </provider>
+    <receiver
+      android:name=".AppUpdateReceiver"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.PACKAGE_ADDED" />
+        <data android:scheme="package" />
+      </intent-filter>
+    </receiver>
   </application>
 </manifest>

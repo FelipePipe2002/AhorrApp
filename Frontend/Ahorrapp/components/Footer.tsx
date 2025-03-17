@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import GlobalText from './GlobalText';
 import colors from '@/utils/colors';
-import appStore from '@/services/appStore';
+import appStore from '@/store/app.store';
 
 
 const Footer: React.FC = () => {
@@ -13,14 +13,14 @@ const Footer: React.FC = () => {
         onPress={() => appStore.selectedScreenChange('Transactions')}
       >
         <GlobalText style={styles.icon}>💰</GlobalText>
-        <GlobalText style={styles.label}>Transactions</GlobalText>
+        <GlobalText style={styles.label}>Transacciones</GlobalText>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.button]}
         onPress={() => appStore.selectedScreenChange('Statistics')}
       >
         <GlobalText style={styles.icon}>📊</GlobalText>
-        <GlobalText style={styles.label}>Statistics</GlobalText>
+        <GlobalText style={styles.label}>Estadisticas</GlobalText>
       </TouchableOpacity>
     </View>
   );

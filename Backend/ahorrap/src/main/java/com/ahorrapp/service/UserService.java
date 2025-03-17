@@ -49,4 +49,8 @@ public class UserService {
     public Iterable<UserResponseDTO> getAllUsers() {
         return userRepository.findAll().stream().map(mapperDTOModel::mapToResponseDTO).toList();
     }
+
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
 }
