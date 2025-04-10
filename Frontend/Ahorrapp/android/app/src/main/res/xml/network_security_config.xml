@@ -1,6 +1,0 @@
-<network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">*.*.*.*</domain> <!-- Wildcard for IP -->
-    </domain-config>
-    <base-config cleartextTrafficPermitted="true" />
-</network-security-config>
